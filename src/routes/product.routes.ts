@@ -4,9 +4,9 @@ import { ProductController } from "../controllers/product.controller";
 const productRouter = Router();
 
 // API ROUTES
-productRouter.get("/", (req: Request, res: Response) => {
+productRouter.get("/", async (req: Request, res: Response) => {
   try {
-    let data = ProductController.getProductList();
+    let data = await ProductController.getProductList();
     res.status(200).json({
       success: true,
       data,
@@ -23,9 +23,9 @@ productRouter.get("/", (req: Request, res: Response) => {
   }
 });
 
-productRouter.post("/create", (req: Request, res: Response) => {
+productRouter.post("/", async (req: Request, res: Response) => {
   try {
-    let data = ProductController.createProduct();
+    let data = await ProductController.createProduct(req.body);
     res.status(200).json({
       success: true,
       data,
