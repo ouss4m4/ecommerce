@@ -17,6 +17,6 @@ export class Product {
   @Column({ name: "price", type: "numeric" })
   price: number;
 
-  @Column({ name: "product_image" })
-  productImage: string;
+  @Column({ name: "image" })
+  image: string;
 }
