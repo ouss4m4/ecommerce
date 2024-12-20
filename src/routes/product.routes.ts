@@ -3,6 +3,7 @@ import { ProductController } from "../controllers/product.controller";
 
 const productRouter = Router();
 
+// API ROUTES
 productRouter.get("/", (req: Request, res: Response) => {
   try {
     let data = ProductController.getProductList();
