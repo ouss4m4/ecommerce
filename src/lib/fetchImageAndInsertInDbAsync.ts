@@ -8,9 +8,6 @@ export const downloadExternalImageAndSaveToDisk = async (url: string, filePath: 
   }
 
   try {
-    // check storage folder (repetetive... omit for now)
-    // await mkdir(storageFolder, { recursive: true });
-
     // extract filename (image)
     let writer = createWriteStream(filePath);
     await pipeline(response.body as any, writer);

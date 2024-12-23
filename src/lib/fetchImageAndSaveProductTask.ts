@@ -28,6 +28,6 @@ export const fetchImageAndInsertInDbAsync = async (
   } catch (error) {
     let message = `Error happend inserting product ${sku}`;
     if (error instanceof Error) message = error.message;
-    throw new Error();
+    return new Error(message);
   }
 };
