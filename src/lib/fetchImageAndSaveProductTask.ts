@@ -18,6 +18,7 @@ export const fetchImageAndInsertInDbAsync = async (
     // later on delegate this to be the return value of the promise.
     // and insert items at once
     await productRepo.insert({
+      sku,
       name,
       description,
       category,
