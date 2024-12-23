@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
-import { AppDataSource } from "../db/setupDb";
-import { Product } from "../entities/product.entity";
+import { Request, Response } from 'express';
+import { AppDataSource } from '../db/setupDb';
+import { Product } from '../entities/product.entity';
 
 export interface CreateProductDTO {
   name: string;
@@ -20,16 +20,10 @@ export class ProductController {
   static async createProduct(unsafeData: CreateProductDTO) {
     // validation with joi here
 
-    const {
-      category = "",
-      description = "",
-      name = "",
-      price = "",
-      image = "",
-    } = unsafeData;
+    const { category = '', description = '', name = '', price = '', image = '' } = unsafeData;
 
     if (!name || !description || !category || !price || !image) {
-      throw new Error("missing fields");
+      throw new Error('missing fields');
     }
 
     const productRepo = AppDataSource.getRepository(Product);

@@ -1,10 +1,10 @@
-import { Request, Response, Router } from "express";
-import { ProductController } from "../controllers/product.controller";
+import { Request, Response, Router } from 'express';
+import { ProductController } from '../controllers/product.controller';
 
 const productRouter = Router();
 
 // API ROUTES
-productRouter.get("/", async (req: Request, res: Response) => {
+productRouter.get('/', async (req: Request, res: Response) => {
   try {
     let data = await ProductController.getProductList();
     res.status(200).json({
@@ -12,7 +12,7 @@ productRouter.get("/", async (req: Request, res: Response) => {
       data,
     });
   } catch (error) {
-    let message = "An unexpected error happened";
+    let message = 'An unexpected error happened';
     if (error instanceof Error) {
       message = error.message;
     }
@@ -23,7 +23,7 @@ productRouter.get("/", async (req: Request, res: Response) => {
   }
 });
 
-productRouter.post("/", async (req: Request, res: Response) => {
+productRouter.post('/', async (req: Request, res: Response) => {
   try {
     let data = await ProductController.createProduct(req.body);
     res.status(200).json({
@@ -31,7 +31,7 @@ productRouter.post("/", async (req: Request, res: Response) => {
       data,
     });
   } catch (error) {
-    let message = "An unexpected error happened";
+    let message = 'An unexpected error happened';
     if (error instanceof Error) {
       message = error.message;
     }
