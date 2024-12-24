@@ -1,6 +1,14 @@
 import { createReadStream } from 'fs';
-import { parse } from 'fast-csv';
+import { CsvParserStream, parse } from 'fast-csv';
 
 export const parseAndStreamCsvFromPath = (filePath: string) => {
-  return createReadStream(filePath).pipe(parse({ headers: true }));
+  try {
+    return createReadStream(filePath).pipe(parse({ headers: true }));
+  } catch (error) {
+    let message = 'parsing csv file failed';
+    if (error instanceof Error) {
+      message = error.message;
+    }
+    throw new Error(message);
+  }
 };

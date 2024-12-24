@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { downloadExternalImageAndSaveToDisk } from './fetchImageAndInsertInDbAsync';
+import { downloadExternalImageAndSaveToDisk } from './downloadExternalImageAndSaveToDisk';
 import { AppDataSource } from '../db/setupDb';
 import { Product } from '../entities/product.entity';
 
