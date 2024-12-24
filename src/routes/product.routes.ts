@@ -23,6 +23,25 @@ productRouter.get('/', async (req: Request, res: Response) => {
   }
 });
 
+productRouter.get('/:id', async (req: Request, res: Response) => {
+  try {
+    let data = await ProductController.getProduct(req.params.id);
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    let message = 'An unexpected error happened';
+    if (error instanceof Error) {
+      message = error.message;
+    }
+    res.status(400).json({
+      success: false,
+      message,
+    });
+  }
+});
+
 productRouter.post('/', async (req: Request, res: Response) => {
   try {
     let data = await ProductController.createProduct(req.body);
