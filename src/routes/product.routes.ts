@@ -26,6 +26,10 @@ productRouter.get('/', async (req: Request, res: Response) => {
 productRouter.get('/:id', async (req: Request, res: Response) => {
   try {
     let data = await ProductController.getProduct(req.params.id);
+    if (!data) {
+      res.status(404).send();
+      return;
+    }
     res.status(200).json({
       success: true,
       data,
