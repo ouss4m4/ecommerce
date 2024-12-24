@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { fetchImageAndInsertInDbAsync } from '../lib/fetchImageAndSaveProductTask';
+import { fetchImageAndInsertInDbAsync } from '../lib/fetchImageAndInsertInDbAsync';
 import { parseAndStreamCsvFromPath } from '../lib/parseAndStreamCsvFromPath';
 import { IUploadResponse } from '../types/api';
 import { basename, join } from 'path';
