@@ -17,6 +17,13 @@ export class ProductController {
     return productRepo.find();
   }
 
+  static async getProduct(id: string): Promise<Product | null> {
+    const productRepo = AppDataSource.getRepository(Product);
+
+    const product = await productRepo.findOne({ where: { id: Number(id) } });
+    return product;
+  }
+
   static async createProduct(unsafeData: CreateProductDTO) {
     // validation with joi here
 
