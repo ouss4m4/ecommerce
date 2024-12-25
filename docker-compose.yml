@@ -10,12 +10,44 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     volumes:
-      - postgres_data:/var/lib/postgresql/data # Persistent storage for PostgreSQL
+      - postgres_data:/var/lib/postgresql/data
   redis:
     image: redis:latest
     container_name: redis_cache
     restart: always
     ports:
       - '${REDIS_PORT}:6379'
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+    container_name: elasticsearch
+    restart: always
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - xpack.security.http.ssl.enabled=false
+    ports:
+      - '${ELASTIC_PORT}:9200'
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.10.2
+    container_name: kibana
+    restart: always
+    ports:
+      - '${KIBANA_PORT}:5601'
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:${ELASTIC_PORT}
+      - ELASTICSEARCH_USERNAME=${KIBANA_USER}
+      - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
+      - xpack.security.enabled=true
+
 volumes:
   postgres_data:
+  elasticsearch_data:
