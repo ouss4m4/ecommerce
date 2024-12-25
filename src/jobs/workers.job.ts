@@ -23,7 +23,7 @@ export const setupBullMq = () => {
   const ingestElasticJob = new Worker(INGEST_ELASTIC_QUEUE_NAME, processIngestElastic, { connection });
 
   ingestElasticJob.on('ready', () => {
-    console.log(`Inject Elastic Worker Ready!`);
+    console.log(`Inject Elastic Worker!`);
   });
 
   ingestElasticJob.on('completed', (job) => {
@@ -35,10 +35,16 @@ export const setupBullMq = () => {
   });
 
   // Handle graceful shutdown
-
   process.on('SIGINT', async () => {
-    await ingestElasticJob.close();
-    console.log('Workers shut down.');
-    process.exit(0);
+    console.log('Shutting down...');
+    try {
+      await ingestElasticJob.close();
+      await connection.quit(); // Close IORedis connection
+      console.log('Workers and Redis connections shut down.');
+    } catch (error) {
+      console.error('Error shutting down:', error);
+    } finally {
+      process.exit(0);
+    }
   });
 };
