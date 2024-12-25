@@ -1,6 +1,6 @@
 import { join } from 'path';
 import { downloadExternalImageAndSaveToDisk } from './downloadExternalImageAndSaveToDisk';
-import { AppDataSource } from '../db/setupDb';
+import { AppDataSource } from '../db';
 import { Product } from '../entities/product.entity';
 
 export const fetchImageAndInsertInDbAsync = async (

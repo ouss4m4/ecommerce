@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import { AppDataSource } from '../db/setupDb';
 import { Product } from '../entities/product.entity';
+import { AppDataSource } from '../db';
+import { elasticClient } from '../elastic';
 
 export interface CreateProductDTO {
   name: string;
@@ -43,5 +44,23 @@ export class ProductController {
     });
 
     return product;
+  }
+
+  static async searchProduct(searchTerm: string) {
+    // load from elastic and respond
+    const searchResult = await elasticClient.search({
+      index: 'products',
+      body: {
+        query: {
+          multi_match: {
+            query: searchTerm,
+            fields: ['name^3', 'description^2', 'category'], // Boost 'name' and 'description'
+            type: 'phrase', // Ensures terms like 'cheap phone' are treated as a phrase
+          },
+        },
+      },
+    });
+
+    return searchResult;
   }
 }
