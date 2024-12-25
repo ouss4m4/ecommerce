@@ -3,6 +3,7 @@ import { fetchImageAndInsertInDbAsync } from '../lib/fetchImageAndInsertInDbAsyn
 import { parseAndStreamCsvFromPath } from '../lib/parseAndStreamCsvFromPath';
 import { IUploadResponse } from '../types/api';
 import { basename, join } from 'path';
+import { ingestElasticQueue } from '../jobs/queues.job';
 export class ProductUploadController {
   static async handle(req: Request, res: Response): Promise<Response<IUploadResponse>> {
     if (!req.file) {
@@ -65,6 +66,8 @@ export class ProductUploadController {
         }
       }
     });
+
+    ingestElasticQueue.add('new csv upload', { file: filePath });
 
     return res.end(
       JSON.stringify({
