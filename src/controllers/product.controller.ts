@@ -12,19 +12,23 @@ export interface CreateProductDTO {
 }
 
 export class ProductController {
-  static getProductList({ limit, skip }: { limit: number; skip: number }): Promise<Product[]> {
+  static async getProductList({ limit, skip }: { limit: number; skip: number }): Promise<{ products: Product[]; total: number }> {
     const productRepo = AppDataSource.getRepository(Product);
-
-    return productRepo.find({
+    let [products, total] = await productRepo.findAndCount({
       skip,
       take: limit,
     });
+    return {
+      products,
+      total,
+    };
   }
 
   static async getProduct(id: string): Promise<Product | null> {
     const productRepo = AppDataSource.getRepository(Product);
 
-    const product = await productRepo.findOne({ where: { id: Number(id) } });
+    const product = await productRepo.findOne({ where: { sku: id } });
+
     return product;
   }
 

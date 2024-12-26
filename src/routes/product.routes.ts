@@ -11,13 +11,14 @@ productRouter.get('/', async (req: Request, res: Response) => {
     const page = Number(req.query.page ?? 1);
     const pageSize = Number(req.query.pageSize ?? 12);
 
-    const data = await ProductController.getProductList({ limit: pageSize, skip: page * pageSize });
+    const { products, total } = await ProductController.getProductList({ limit: pageSize, skip: page * pageSize });
 
     res.status(200).json({
       success: true,
-      data,
+      data: products,
       page,
       pageSize,
+      total,
     });
   } catch (error) {
     let message = 'An unexpected error happened';
@@ -45,10 +46,7 @@ productRouter.get('/:id', async (req: Request, res: Response) => {
       res.status(404).send();
       return;
     }
-    res.status(200).json({
-      success: true,
-      data,
-    });
+    res.status(200).json(data);
   } catch (error) {
     let message = 'An unexpected error happened';
     if (error instanceof Error) {
