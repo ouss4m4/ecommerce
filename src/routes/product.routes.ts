@@ -6,11 +6,18 @@ const productRouter = Router();
 // API ROUTES
 productRouter.get('/', async (req: Request, res: Response) => {
   try {
-    let data = await ProductController.getProductList();
+    // extract query
+    console.log(req.query.page);
+    const page = Number(req.query.page ?? 1);
+    const pageSize = Number(req.query.pageSize ?? 12);
+
+    const data = await ProductController.getProductList({ limit: pageSize, skip: page * pageSize });
 
     res.status(200).json({
       success: true,
       data,
+      page,
+      pageSize,
     });
   } catch (error) {
     let message = 'An unexpected error happened';
