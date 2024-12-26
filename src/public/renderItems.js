@@ -9,7 +9,7 @@ let timeout;
 searchInput.addEventListener('input', (e) => {
   clearTimeout(timeout); // debounce
   timeout = setTimeout(function () {
-    window.location.href = `http://localhost:5500/search.html?query=${e.target.value}`;
+    window.location.href = `http://localhost:3001/search.html?query=${e.target.value}`;
   }, 500);
 });
 

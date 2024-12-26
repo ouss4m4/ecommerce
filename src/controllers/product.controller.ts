@@ -51,19 +51,23 @@ export class ProductController {
 
   static async searchProduct(searchTerm: string) {
     // load from elastic and respond
-    const searchResult = await elasticClient.search({
-      index: 'products',
-      body: {
-        query: {
-          multi_match: {
-            query: searchTerm,
-            fields: ['name^3', 'description^2', 'category'], // Boost 'name' and 'description'
-            type: 'phrase', // Ensures terms like 'cheap phone' are treated as a phrase
+    try {
+      const searchResult = await elasticClient.search({
+        index: 'products',
+        body: {
+          query: {
+            multi_match: {
+              query: searchTerm,
+              fields: ['name^3', 'description^2', 'category'], // Boost 'name' and 'description'
+              type: 'phrase', // Ensures terms like 'cheap phone' are treated as a phrase
+            },
           },
         },
-      },
-    });
+      });
 
-    return searchResult;
+      return searchResult.hits.hits;
+    } catch (error) {
+      return [];
+    }
   }
 }
