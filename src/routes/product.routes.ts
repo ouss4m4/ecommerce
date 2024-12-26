@@ -7,6 +7,7 @@ const productRouter = Router();
 productRouter.get('/', async (req: Request, res: Response) => {
   try {
     let data = await ProductController.getProductList();
+
     res.status(200).json({
       success: true,
       data,

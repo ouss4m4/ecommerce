@@ -12,7 +12,7 @@ export interface CreateProductDTO {
 }
 
 export class ProductController {
-  static async getProductList(): Promise<Product[]> {
+  static getProductList(): Promise<Product[]> {
     const productRepo = AppDataSource.getRepository(Product);
 
     return productRepo.find();

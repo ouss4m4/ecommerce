@@ -4,14 +4,15 @@ import express, { json, NextFunction, Request, Response } from 'express';
 import { config } from 'dotenv';
 import { v1Router } from './routes/v1.routes';
 import { join } from 'path';
+import cors from 'cors';
 
 config();
 
 const app = express();
 const port = process.env.PORT || '3002';
+app.use(cors());
 
 app.use(json());
-
 // API V1 routes
 app.use('/api/v1', v1Router);
 
