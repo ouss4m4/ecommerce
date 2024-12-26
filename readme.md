@@ -1,6 +1,6 @@
 # ElesticSearch + PG TypeScript TypeOrm 
 
-API to upload products through CSV in format 
+API to insert products through CSV Upload, sample:
 
 ```csv
 sku,name,description,category,price,image
