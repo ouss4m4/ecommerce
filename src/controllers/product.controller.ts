@@ -65,7 +65,7 @@ export class ProductController {
         },
       });
 
-      return searchResult.hits.hits;
+      return searchResult.hits.hits.map((hit) => hit._source);
     } catch (error) {
       return [];
     }
