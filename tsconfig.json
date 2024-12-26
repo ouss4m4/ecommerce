@@ -10,5 +10,5 @@
     "outDir": "./dist",
     "strictPropertyInitialization": false
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "src/public"]
 }
