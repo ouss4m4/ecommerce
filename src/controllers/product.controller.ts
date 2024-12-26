@@ -12,10 +12,13 @@ export interface CreateProductDTO {
 }
 
 export class ProductController {
-  static getProductList(): Promise<Product[]> {
+  static getProductList({ limit, skip }: { limit: number; skip: number }): Promise<Product[]> {
     const productRepo = AppDataSource.getRepository(Product);
 
-    return productRepo.find();
+    return productRepo.find({
+      skip,
+      take: limit,
+    });
   }
 
   static async getProduct(id: string): Promise<Product | null> {
