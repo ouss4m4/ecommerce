@@ -2,8 +2,8 @@ import 'reflect-metadata';
 
 import express, { json, NextFunction, Request, Response } from 'express';
 import { config } from 'dotenv';
-import { productRouter } from './routes/product.routes';
-import { uploadRouter } from './routes/upload.routes';
+import { v1Router } from './routes/v1.routes';
+import { join } from 'path';
 
 config();
 
@@ -12,9 +12,11 @@ const port = process.env.PORT || '3002';
 
 app.use(json());
 
-app.use('/products', productRouter);
+// API V1 routes
+app.use('/api/v1', v1Router);
 
-app.use('/upload', uploadRouter);
+app.use(express.static(join(__dirname, 'public')));
+
 const startServer = () => {
   app.listen(port, function () {
     console.info('App is listening on port ', port);

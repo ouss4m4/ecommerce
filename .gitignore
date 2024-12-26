@@ -1,7 +1,6 @@
 node_modules
 dist
 .env
-public
 storage
 uploads
 coverage
