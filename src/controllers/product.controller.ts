@@ -4,9 +4,10 @@ import { AppDataSource } from '../db';
 import { elasticClient } from '../elastic';
 
 export interface CreateProductDTO {
+  sku: string;
   name: string;
   description: string;
-  category: string;
+  categoryId: string;
   price: number;
   image: string;
 }
@@ -35,17 +36,17 @@ export class ProductController {
   static async createProduct(unsafeData: CreateProductDTO) {
     // validation with joi here
 
-    const { category = '', description = '', name = '', price = '', image = '' } = unsafeData;
+    const { sku, categoryId, description = '', name = '', price = null, image = '' } = unsafeData;
 
-    if (!name || !description || !category || !price || !image) {
+    if (!sku || !name || !description || !Number(categoryId) || !price || !image) {
       throw new Error('missing fields');
     }
-
     const productRepo = AppDataSource.getRepository(Product);
     let product = await productRepo.insert({
+      sku,
       name,
       description,
-      category,
+      categoryId: +categoryId,
       price,
       image,
     });

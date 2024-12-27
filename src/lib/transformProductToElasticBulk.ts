@@ -3,7 +3,7 @@ import { Product } from '../entities/product.entity';
 /**
  * map a list of products to elastic search index bulk format
  *
- * { index: { _index: 'products', _id: product.sku } }  
+ * { index: { _index: 'products', _id: product.sku } }
  * { sku, name, description, category, price, image }
  *
  * @param products
@@ -21,7 +21,7 @@ const transformToBulk = (products: Product[]): any[] => {
       sku: product.sku,
       name: product.name,
       description: product.description,
-      category: product.category,
+      category: product.Category.id,
       price: product.price,
       image: product.image,
     });
