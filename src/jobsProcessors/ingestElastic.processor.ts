@@ -6,6 +6,7 @@ import { transformToBulk } from '../lib/transformProductToElasticBulk';
 export const processIngestElastic = async (job: any) => {
   try {
     let products = await AppDataSource.getRepository(Product).find({
+      relations: ['Category'],
       order: { id: 'DESC' },
       take: 2000,
     });

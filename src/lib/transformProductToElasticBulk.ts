@@ -21,7 +21,8 @@ const transformToBulk = (products: Product[]): any[] => {
       sku: product.sku,
       name: product.name,
       description: product.description,
-      category: product.Category.id,
+      categoryId: product.Category.id,
+      category: product.Category.name,
       price: product.price,
       image: product.image,
     });
