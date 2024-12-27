@@ -55,8 +55,21 @@ export class ProductController {
   }
 
   static async searchProduct(searchTerm: string) {
-    // load from elastic and respond
     try {
+      if (!searchTerm) {
+        // Fetch latest  items when searchTerm is empty
+        const defaultResult = await elasticClient.search({
+          index: 'products',
+          body: {
+            query: {
+              match_all: {},
+            },
+            size: 10,
+          },
+        });
+
+        return defaultResult.hits.hits.map((hit) => hit._source);
+      }
       const searchResult = await elasticClient.search({
         index: 'products',
         body: {

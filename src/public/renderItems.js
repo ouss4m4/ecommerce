@@ -30,7 +30,6 @@ const createItemCard = (item) => {
 };
 
 async function renderItems(itemsList) {
-  console.log(itemsList);
   const itemsWrap = document.getElementById('products');
   for (let i = 0; i < itemsList.length; i++) {
     let card = createItemCard(itemsList[i]);
