@@ -1,21 +1,25 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Category } from './category.entity';
 
 @Entity()
 export class Product {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'sku', unique: true })
+  @Column({ unique: true })
   sku: string;
 
-  @Column({ name: 'name' })
+  @Column()
   name: string;
 
-  @Column({ name: 'description' })
+  @Column()
   description: string;
 
-  @Column({ name: 'category' })
-  category: string;
+  @Column({ type: 'tinyint' })
+  categoryId: number;
+
+  @ManyToOne(() => Category, (category) => category.id)
+  Category: Category;
 
   @Column({ name: 'price', type: 'numeric' })
   price: number;

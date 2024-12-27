@@ -7,7 +7,7 @@ export const fetchImageAndInsertInDbAsync = async (
   sku: string,
   name: string,
   description: string,
-  category: string,
+  categoryId: number,
   price: number,
   imageUrl: string
 ): Promise<boolean | Error> => {
@@ -21,7 +21,7 @@ export const fetchImageAndInsertInDbAsync = async (
       sku,
       name,
       description,
-      category,
+      categoryId,
       price,
       image: `\\images\\${sku}.png`,
     });
