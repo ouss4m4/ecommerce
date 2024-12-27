@@ -9,16 +9,9 @@ const createIndex = async () => {
     body: {
       mappings: {
         properties: {
-          sku: { type: 'keyword' },
-          name: {
-            type: 'text',
-            analyzer: 'standard',
-            fields: { raw: { type: 'keyword' } },
-          },
-          description: { type: 'text', analyzer: 'standard' },
-          category: { type: 'keyword' },
-          price: { type: 'float' },
-          image: { type: 'keyword' },
+          name: { type: 'text', analyzer: 'english' }, // Use 'english' analyzer
+          description: { type: 'text', analyzer: 'english' },
+          category: { type: 'text', analyzer: 'english', fields: { raw: { type: 'keyword' } } },
         },
       },
     },

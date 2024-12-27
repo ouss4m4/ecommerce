@@ -63,8 +63,8 @@ export class ProductController {
           query: {
             multi_match: {
               query: searchTerm,
-              fields: ['name^3', 'description^2', 'category'], // Boost 'name' and 'description'
-              type: 'phrase', // Ensures terms like 'cheap phone' are treated as a phrase
+              fields: ['name^3', 'description^2', 'category'],
+              type: 'phrase',
             },
           },
         },
