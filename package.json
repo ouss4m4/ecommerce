@@ -7,7 +7,10 @@
     "dev:css": "postcss src/styles/tailwind.css -o src/public/tailwind.css --watch",
     "build": "tsc && cp -r src/public dist/public",
     "start": "node dist/index.js",
-    "test": "jest"
+    "test": "jest",
+    "migration:generate": "npx typeorm migration:generate -d ./dist/db/data-source.js src/db/migrations/migration",
+    "migration:run": "npx typeorm migration:run -d ./dist/db/data-source.js",
+    "migration:revert": "npx typeorm migration:revert -d ./dist/db/data-source.js"
   },
   "keywords": [],
   "author": "",
