@@ -8,7 +8,7 @@ productRouter.get('/', async (req: Request, res: Response) => {
   try {
     // extract query
     console.log(req.query.page);
-    const page = Number(req.query.page ?? 1);
+    const page = Number(req.query.page ?? 0);
     const pageSize = Number(req.query.pageSize ?? 12);
 
     const { products, total } = await ProductController.getProductList({ limit: pageSize, skip: page * pageSize });

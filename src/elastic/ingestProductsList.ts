@@ -8,14 +8,16 @@ export const ingestProductsList = async () => {
   // ingest product in batches of 100
   const dataSource = AppDataSource.getRepository(Product);
 
-  let batch = 1;
+  let batch = 0;
   while (true) {
     const products = await dataSource.find({
       take: 100,
       skip: 100 * batch,
+      relations: ['Category'],
     });
 
     if (products.length == 0) {
+      console.error('no products found');
       break;
     }
     ++batch;
