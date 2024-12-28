@@ -218,16 +218,15 @@ const generateCsv = async (rowsNum: number) => {
 
       for (let i = 0; i < rowsNum; i++) {
         let category = Math.floor(Math.random() * 6) + 1;
-        let randomItem = Math.floor(Math.random() * 5);
 
         // sku,name,description,category,price,image
         let row = [
           `'${formatSku(++startingSku)}'`,
-          `'${itemName[category][randomItem]}'`,
-          `'${descriptions[category][randomItem]}'`,
+          `'${itemName[category][Math.floor(Math.random() * itemName[category].length)]}'`,
+          `'${descriptions[category][Math.floor(Math.random() * descriptions[category].length)]}'`,
           category,
-          pricesByCategory[category][randomItem],
-          `'${productImagesByCategory[category][randomItem]}'`,
+          pricesByCategory[category][Math.floor(Math.random() * pricesByCategory[category].length)],
+          `'${productImagesByCategory[category][Math.floor(Math.random() * productImagesByCategory[category].length)]}'`,
         ];
         // Write the row to the CSV
         writeStream.write(row.join(',') + '\n');
