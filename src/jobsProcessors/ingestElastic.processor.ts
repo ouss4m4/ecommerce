@@ -2,7 +2,10 @@ import { AppDataSource, connectDb } from '../db';
 import { elasticClient } from '../elastic';
 import { Product } from '../entities/product.entity';
 import { transformToBulk } from '../lib/transformProductToElasticBulk';
-
+/**
+ * NOT IN USE! Replaced with KAFKA
+ * @param job
+ */
 export const processIngestElastic = async (job: any) => {
   try {
     let products = await AppDataSource.getRepository(Product).find({
