@@ -64,7 +64,7 @@ export class ProductController {
             query: {
               match_all: {},
             },
-            size: 10,
+            size: 100,
           },
         });
 
@@ -76,7 +76,7 @@ export class ProductController {
           query: {
             multi_match: {
               query: searchTerm,
-              fields: ['name^3', 'description^2', 'category'],
+              fields: ['name^3', 'category^2', 'description'],
               type: 'phrase',
             },
           },
