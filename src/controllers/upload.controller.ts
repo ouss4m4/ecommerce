@@ -2,8 +2,7 @@ import { Request, Response } from 'express';
 import { fetchImageAndInsertInDbAsync } from '../lib/fetchImageAndInsertInDbAsync';
 import { parseAndStreamCsvFromPath } from '../lib/parseAndStreamCsvFromPath';
 import { IUploadResponse } from '../types/api';
-import { basename, join } from 'path';
-import { ingestElasticQueue } from '../jobs/queues.job';
+import { basename } from 'path';
 export class ProductUploadController {
   static async handle(req: Request, res: Response): Promise<Response<IUploadResponse>> {
     if (!req.file) {
@@ -28,7 +27,7 @@ export class ProductUploadController {
 
     // for every row of csv. async fetch the image and save in db.
     const tasksInProgress: Promise<boolean | Error>[] = [];
-    // Break the csv to 5 rows per batch?
+    // TODO: Break the csv to 5 rows per batch?
 
     res.setHeader('content-type', 'application/json');
     res.write(
@@ -66,8 +65,6 @@ export class ProductUploadController {
         }
       }
     });
-
-    ingestElasticQueue.add('new csv upload', { file: filePath });
 
     return res.end(
       JSON.stringify({
