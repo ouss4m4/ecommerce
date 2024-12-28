@@ -42,7 +42,7 @@ export class ProductUploadController {
       const { sku, name, description, category, price, image: imageUrl } = row;
       const task = fetchImageAndInsertInDbAsync(sku, name, description, category, price, imageUrl);
       tasksInProgress.push(task);
-      if (++count % 5 == 0) {
+      if (++count % 50 == 0) {
         res.write(
           JSON.stringify({
             success: true,
