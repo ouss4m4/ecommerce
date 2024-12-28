@@ -1,5 +1,7 @@
 import { AppDataSource } from './db/index';
 import { Product } from './entities/product.entity';
+import { createWriteStream } from 'fs';
+import { join } from 'path';
 // csv header
 // sku,name,description,category,price,image
 
@@ -12,7 +14,7 @@ const categories = [
   6, // accessories
 ];
 
-const productImagesByCategory = {
+const productImagesByCategory: { [key: number]: string[] } = {
   1: [
     'https://amsprod.blob.core.windows.net/assets/a5b9b89c-ba44-4afb-9035-eaee28767699_400_400.png',
     'https://microless.com/cdn/products/02158e7fd12d63334e5e21e8276c540a-hi.jpg',
@@ -54,11 +56,12 @@ const productImagesByCategory = {
     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS-5qNizLBZeQQoio1mPI0R3DhgBVuqQCRijQ&s',
     'https://m.media-amazon.com/images/I/51aVdvZyiBL.jpg',
     'https://m.media-amazon.com/images/I/71Ez1VpSRNL._AC_UF1000,1000_QL80_.jpg',
-    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKY3nwl6t3PNyBj1v0BWdxD5Q77jS1ux2Xmw&s',
   ],
 };
 
-const itemName = {
+const itemName: {
+  [key: number]: string[];
+} = {
   1: [
     'Samsung S23',
     'iPhone 14 Pro',
@@ -133,7 +136,7 @@ const itemName = {
   ],
 };
 
-const descriptions = {
+const descriptions: { [key: number]: string[] } = {
   1: [
     'Latest smartphone with cutting-edge technology.',
     'Flagship mobile with stunning camera and battery life.',
@@ -178,7 +181,7 @@ const descriptions = {
   ],
 };
 
-const pricesByCategory = {
+const pricesByCategory: { [key: number]: number[] } = {
   1: [499, 699, 899, 1099, 1299], // Mobiles
   2: [149, 249, 349, 449, 549], // Monitors
   3: [599, 899, 1299, 1499, 1999], // Laptops
@@ -187,8 +190,8 @@ const pricesByCategory = {
   6: [29, 49, 79, 99, 149], // Accessories
 };
 
-const generateCsv = async () => {
-  // get latest sku
+const generateCsv = async (rowsNum: number) => {
+  // Get last SKU
   let appDataSource = await AppDataSource.initialize();
   let productRepo = appDataSource.getRepository(Product);
   const product = await productRepo
@@ -196,19 +199,79 @@ const generateCsv = async () => {
     .select(['product.id', 'product.sku'])
     .orderBy('CAST(SUBSTRING(product.sku FROM 3) AS INTEGER)', 'DESC') // PostgreSQL syntax for substring
     .getOne();
-  console.log(product?.sku);
-  console.log(
-    [product?.sku, itemName[1][0], descriptions[1][0], 1, pricesByCategory[1][0], `"${productImagesByCategory[1][0]}"`].join(',')
-  );
-  // sku,name,description,category,price,image
+  let startingSku = 0;
+  if (product) {
+    startingSku = parseInt(product.sku.substring(2));
+  }
+
+  return new Promise((resolve, reject) => {
+    // Define file path
+    let filePath = join(__dirname, 'products_list.csv');
+    // Create write stream
+    const writeStream = createWriteStream(filePath, { flags: 'w' });
+
+    writeStream.on('open', (err) => {
+      console.log('stream opened');
+
+      // Write the header
+      writeStream.write('sku,name,description,category,price,image\n');
+
+      for (let i = 0; i < rowsNum; i++) {
+        let category = Math.floor(Math.random() * 6) + 1;
+        let randomItem = Math.floor(Math.random() * 5);
+
+        // sku,name,description,category,price,image
+        let row = [
+          `'${formatSku(++startingSku)}'`,
+          `'${itemName[category][randomItem]}'`,
+          `'${descriptions[category][randomItem]}'`,
+          category,
+          pricesByCategory[category][randomItem],
+          `'${productImagesByCategory[category][randomItem]}'`,
+        ];
+        // Write the row to the CSV
+        writeStream.write(row.join(',') + '\n');
+      }
+
+      // End the write stream
+      writeStream.end();
+    });
+
+    writeStream.on('error', (err) => {
+      console.error('Error writing to file:', err);
+      reject(err);
+    });
+
+    writeStream.on('finish', () => {
+      console.log('CSV file created successfully:', filePath);
+      resolve(filePath);
+    });
+  });
 };
 
-generateCsv()
-  .then((data) => {
-    console.log(data);
-    process.exit(0);
-  })
+/**
+ * Given an integer between 1 and 999999
+ * returns the SKU format ITXXXXXX
+ * @param number
+ * @returns string
+ */
+const formatSku = (number: number): string => {
+  if (number < 1 || number > 999999) {
+    throw new Error('Number must be between 1 and 999999');
+  }
+  return `IT${number.toString().padStart(6, '0')}`;
+};
+
+// Read the variable from command-line arguments
+let rowsNum = parseInt(process.argv[2]);
+
+if (isNaN(rowsNum) || rowsNum <= 0) {
+  rowsNum = 100;
+}
+
+generateCsv(rowsNum)
+  .then(() => process.exit(0))
   .catch((err) => {
-    console.error(err);
+    console.error('Error generating CSV:', err);
     process.exit(1);
   });
