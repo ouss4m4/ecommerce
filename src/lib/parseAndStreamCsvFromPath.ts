@@ -3,7 +3,7 @@ import { CsvParserStream, parse } from 'fast-csv';
 
 export const parseAndStreamCsvFromPath = (filePath: string) => {
   try {
-    return createReadStream(filePath).pipe(parse({ headers: true }));
+    return createReadStream(filePath).pipe(parse({ headers: true, delimiter: ',', quote: "'" }));
   } catch (error) {
     let message = 'parsing csv file failed';
     if (error instanceof Error) {
