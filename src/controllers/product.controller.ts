@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { Product } from '../entities/product.entity';
 import { AppDataSource } from '../db';
 import { elasticClient } from '../elastic';
+import { productCreatedProducer, productUpdatedProducer } from '../kafka';
+import { UpdateProductDTO } from '../types/api';
 
 export interface CreateProductDTO {
   sku: string;
@@ -34,15 +36,13 @@ export class ProductController {
   }
 
   static async createProduct(unsafeData: CreateProductDTO) {
-    // validation with joi here
-
     const { sku, categoryId, description = '', name = '', price = null, image = '' } = unsafeData;
 
     if (!sku || !name || !description || !Number(categoryId) || !price || !image) {
       throw new Error('missing fields');
     }
     const productRepo = AppDataSource.getRepository(Product);
-    let product = await productRepo.insert({
+    let product = await productRepo.save({
       sku,
       name,
       description,
@@ -51,9 +51,30 @@ export class ProductController {
       image,
     });
 
+    productCreatedProducer.sendMessage({
+      value: JSON.stringify(product),
+    });
+
     return product;
   }
 
+  static async updateProduct(sku: string, data: UpdateProductDTO) {
+    const productRepo = AppDataSource.getRepository(Product);
+    let product = await productRepo.findOne({ where: { sku } });
+    if (!product || !product.sku) {
+      throw new Error('product not found');
+    }
+    // validation on data with joi
+    const { name, description, categoryId, price } = data;
+
+    const updatedProduct = await productRepo.update({ sku }, { name, description, categoryId, price });
+
+    productUpdatedProducer.sendMessage({
+      value: JSON.stringify(sku),
+    });
+
+    return updatedProduct;
+  }
   static async searchProduct(searchTerm: string) {
     try {
       if (!searchTerm) {
