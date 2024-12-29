@@ -39,6 +39,7 @@ productRouter.get('/search', async (req: Request, res: Response) => {
   res.json(items);
   return;
 });
+
 productRouter.get('/:id', async (req: Request, res: Response) => {
   try {
     let data = await ProductController.getProduct(req.params.id);
@@ -78,4 +79,24 @@ productRouter.post('/', async (req: Request, res: Response) => {
   }
 });
 
+productRouter.patch('/:sku', async (req: Request, res: Response) => {
+  try {
+    let sku = req.params.sku;
+
+    let data = await ProductController.updateProduct(sku, req.body);
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    let message = 'An unexpected error happened';
+    if (error instanceof Error) {
+      message = error.message;
+    }
+    res.status(400).json({
+      success: false,
+      message,
+    });
+  }
+});
 export { productRouter };
