@@ -2,6 +2,7 @@ import { pipeline } from 'stream/promises';
 import { createWriteStream } from 'fs';
 
 export const downloadExternalImageAndSaveToDisk = async (url: string, filePath: string): Promise<string | Error> => {
+  // TODO: add a timeout abortSignal
   let response = await fetch(url);
   if (!response.ok || !response.body) {
     throw new Error('Failed to fetch Image ' + url);

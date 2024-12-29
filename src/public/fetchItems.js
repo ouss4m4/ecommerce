@@ -1,7 +1,7 @@
 const getItemsList = async () => {
   const urlParams = new URLSearchParams(window.location.search);
   const page = urlParams.get('page');
-  const pageSize = 10;
+  const pageSize = 12;
 
   const apiUrl = page ? `http://localhost:3001/api/v1/products?page=${page}&pageSize=${pageSize}` : 'http://localhost:3001/api/v1/products';
   return await fetch(apiUrl).then((res) => res.json());
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 const updatePaginator = (currentPage, itemsTotal) => {
   const page = Number(currentPage) || 1;
-  const itemsPerPage = 10;
+  const itemsPerPage = 12;
   const lastPage = Math.ceil(itemsTotal / itemsPerPage);
   const from = (page - 1) * itemsPerPage + 1;
   const to = Math.min(page * itemsPerPage, itemsTotal);

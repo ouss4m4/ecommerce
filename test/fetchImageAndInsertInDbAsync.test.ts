@@ -1,8 +1,8 @@
-import { AppDataSource } from '../src/db/setupDb';
+import { AppDataSource } from '../src/db';
 import { downloadExternalImageAndSaveToDisk } from '../src/lib/downloadExternalImageAndSaveToDisk';
 import { fetchImageAndInsertInDbAsync } from '../src/lib/fetchImageAndInsertInDbAsync';
 
-jest.mock('../src/db/setupDb');
+jest.mock('../src/db');
 jest.mock('../src/lib/downloadExternalImageAndSaveToDisk');
 
 describe('fetchImageAndInsertInDbAsync', () => {
@@ -20,17 +20,17 @@ describe('fetchImageAndInsertInDbAsync', () => {
   });
 
   it('download an image and insert product in db', async () => {
-    let { sku, name, description, category, price, imageUrl } = {
+    let { sku, name, description, categoryId, price, imageUrl } = {
       sku: 'IT001',
       name: 'samsung',
       description: 'lorem ipsum dolor sit amet',
-      category: 'phone',
+      categoryId: 1,
       price: 123,
       imageUrl: 'test.com',
     };
 
     (downloadExternalImageAndSaveToDisk as jest.Mock).mockResolvedValue('abc');
-    await fetchImageAndInsertInDbAsync(sku, name, description, category, price, imageUrl);
+    await fetchImageAndInsertInDbAsync(sku, name, description, categoryId, price, imageUrl);
 
     expect(downloadExternalImageAndSaveToDisk).toHaveBeenCalledTimes(1);
     expect(downloadExternalImageAndSaveToDisk).toHaveBeenCalledWith(imageUrl, expect.anything());
@@ -39,24 +39,22 @@ describe('fetchImageAndInsertInDbAsync', () => {
       sku,
       name,
       description,
-      category,
+      categoryId,
       price,
       image: `\\images\\${sku}.png`,
     });
   });
 
   it('should error on wrong failed image fetch', async () => {
-    let { sku, name, description, category, price, imageUrl } = {
-      sku: 'IT002',
-      name: 'phone',
-      description: 'lorem ipsum dolor sit amet',
-      category: 'phone',
-      price: 123,
-      imageUrl: 'wrongurl',
-    };
+    const sku = 'IT002';
+    const name = 'phone';
+    const description = 'lorem ipsum dolor sit amet';
+    const categoryId = 1;
+    const price = 123;
+    const imageUrl = 'wrongurl';
 
     (downloadExternalImageAndSaveToDisk as jest.Mock).mockRejectedValue(new Error('failed to fetch'));
-    await fetchImageAndInsertInDbAsync(sku, name, description, category, price, imageUrl);
+    await fetchImageAndInsertInDbAsync(sku, name, description, categoryId, price, imageUrl);
     expect(downloadExternalImageAndSaveToDisk).toHaveBeenCalledTimes(1);
     expect(downloadExternalImageAndSaveToDisk).toHaveBeenCalledWith(imageUrl, expect.anything());
     expect(downloadExternalImageAndSaveToDisk).rejects.toThrow('failed to fetch');
@@ -64,11 +62,11 @@ describe('fetchImageAndInsertInDbAsync', () => {
   });
 
   it('should throw on duplicate insert', async () => {
-    let { sku, name, description, category, price, imageUrl } = {
+    let { sku, name, description, categoryId, price, imageUrl } = {
       sku: 'IT001',
       name: 'samsung',
       description: 'lorem ipsum dolor sit amet',
-      category: 'phone',
+      categoryId: 1,
       price: 123,
       imageUrl: 'test.com',
     };
@@ -76,7 +74,7 @@ describe('fetchImageAndInsertInDbAsync', () => {
     (downloadExternalImageAndSaveToDisk as jest.Mock).mockResolvedValue('abc');
     (mockRepository.insert as jest.Mock).mockRejectedValue(new Error('duplicate row'));
 
-    await fetchImageAndInsertInDbAsync(sku, name, description, category, price, imageUrl);
+    await fetchImageAndInsertInDbAsync(sku, name, description, categoryId, price, imageUrl);
 
     expect(downloadExternalImageAndSaveToDisk).toHaveBeenCalledTimes(1);
     expect(downloadExternalImageAndSaveToDisk).toHaveBeenCalledWith(imageUrl, expect.anything());
@@ -85,7 +83,7 @@ describe('fetchImageAndInsertInDbAsync', () => {
       sku,
       name,
       description,
-      category,
+      categoryId,
       price,
       image: `\\images\\${sku}.png`,
     });
