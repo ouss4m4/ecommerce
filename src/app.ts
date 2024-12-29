@@ -18,12 +18,6 @@ app.use('/api/v1', v1Router);
 
 app.use(express.static(join(__dirname, 'public')));
 
-const startServer = () => {
-  app.listen(port, function () {
-    console.info('App is listening on port ', port);
-  });
-};
-
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   if (err) {
     let message = 'Unexcpected error happened';
@@ -37,4 +31,9 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   }
 });
 
+const startServer = () => {
+  app.listen(port, function () {
+    console.info('App is listening on port ', port);
+  });
+};
 export { app, startServer };
