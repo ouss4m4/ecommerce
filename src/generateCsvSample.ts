@@ -214,7 +214,7 @@ const generateCsv = async (rowsNum: number) => {
       console.log('stream opened');
 
       // Write the header
-      writeStream.write('sku,name,description,category,price,image\n');
+      writeStream.write('sku,name,description,categoryId,price,image\n');
 
       for (let i = 0; i < rowsNum; i++) {
         let category = Math.floor(Math.random() * 6) + 1;

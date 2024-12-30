@@ -16,7 +16,11 @@ export const batchInsertProducts = async (products: IProductDTO[]): Promise<IBat
     return response;
   } catch (error) {
     // TODO: if mass insert failts. default to one by one. and show the errored one
-    console.error(error);
+    let message = 'insert failed for product';
+    if (error instanceof Error) {
+      message = error.message;
+    }
+    response.errors.push(message);
     return response;
   }
 };
