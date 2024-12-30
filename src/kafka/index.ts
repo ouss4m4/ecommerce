@@ -5,10 +5,10 @@ import { productCreatedProducer } from './producers/ProductCreated.producer';
 import { productUpdatedProducer } from './producers/ProductUpdated.producer';
 
 const initialiseKafkaConsumersAndProducers = async () => {
-  await productCreatedProducer.connect();
-  await productUpdatedProducer.connect();
-  await productCreatedConsumer.connectAndSubscribe();
-  await productUpdatedConsumer.connectAndSubscribe();
+  productCreatedProducer.connect();
+  productUpdatedProducer.connect();
+  productCreatedConsumer.connectAndSubscribe();
+  productUpdatedConsumer.connectAndSubscribe();
 };
 export {
   kafkaClient,

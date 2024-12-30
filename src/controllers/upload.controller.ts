@@ -1,10 +1,12 @@
 import { Request, Response } from 'express';
-import { fetchImageAndInsertInDbAsync } from '../lib/fetchImageAndInsertInDbAsync';
 import { parseAndStreamCsvFromPath } from '../lib/parseAndStreamCsvFromPath';
-import { IUploadResponse } from '../types/api';
 import { basename } from 'path';
-export class ProductUploadController {
-  static async handle(req: Request, res: Response): Promise<Response<IUploadResponse>> {
+import { IUploadResponse } from '../types/api';
+import { batchDownloadImages } from '../lib/batchDownloadImages';
+import { batchInsertProducts } from '../lib/batchInsertProducts';
+export class ProductBatchUploadController {
+  //   static async handle(req: Request, res: Response): Promise<Response<IUploadResponse>> {
+  static async handle(req: Request, res: Response): Promise<any> {
     if (!req.file) {
       return res.json({
         success: false,
@@ -12,11 +14,17 @@ export class ProductUploadController {
       });
     }
 
+    let uploadResult: IUploadResponse = {
+      success: true,
+      message: 'Started processing rows',
+      errors: [],
+    };
+    // start reading the csv from disk in a stream
     let filePath = req.file.path;
-    // start parsing the csv
     let csvStream = null;
 
     try {
+      // streamed from
       csvStream = parseAndStreamCsvFromPath(filePath);
     } catch (error) {
       return res.json({
@@ -25,53 +33,29 @@ export class ProductUploadController {
       });
     }
 
-    // for every row of csv. async fetch the image and save in db.
-    const tasksInProgress: Promise<boolean | Error>[] = [];
-    // TODO: Break the csv to 5 rows per batch?
-
     res.setHeader('content-type', 'application/json');
-    res.write(
-      JSON.stringify({
-        success: true,
-        message: 'processing...',
-      })
-    );
+    res.write(JSON.stringify(uploadResult));
 
+    // process rows in batches of 10
+    let rowsBatch = [];
     let count = 0;
+
     for await (const row of csvStream) {
-      const { sku, name, description, category, price, image: imageUrl } = row;
-      const task = fetchImageAndInsertInDbAsync(sku, name, description, category, price, imageUrl);
-      tasksInProgress.push(task);
-      if (++count % 50 == 0) {
-        res.write(
-          JSON.stringify({
-            success: true,
-            message: `${count} rows in progress`,
-          })
-        );
+      rowsBatch.push(row);
+      ++count;
+      if (rowsBatch.length == 10) {
+        // update progress
+        uploadResult.message = `${count} rows in progress`;
+        res.write(JSON.stringify(uploadResult));
+
+        const { success: imgSuccess, errors: imgErrors } = await batchDownloadImages(rowsBatch);
+
+        uploadResult.errors = uploadResult.errors.concat(imgErrors);
+        const { success: insertSuccess, errors: insertErros } = await batchInsertProducts(imgSuccess);
+        uploadResult.errors = uploadResult.errors.concat(insertErros);
+        rowsBatch = [];
       }
     }
-
-    let successfullInserts = 0;
-    let errors: string[] = [];
-
-    (await Promise.allSettled(tasksInProgress)).map((resOrErr) => {
-      if (resOrErr.status == 'fulfilled') {
-        if (resOrErr.value instanceof Error) {
-          console.log(resOrErr.value);
-          errors = errors.concat(resOrErr.value.message);
-        } else {
-          ++successfullInserts;
-        }
-      }
-    });
-
-    return res.end(
-      JSON.stringify({
-        success: true,
-        message: `Processed ${successfullInserts} Successfully`,
-        errors,
-      })
-    );
+    res.end(JSON.stringify({ ...uploadResult, message: `Processed ${count - uploadResult.errors.length} successfully` }));
   }
 }
