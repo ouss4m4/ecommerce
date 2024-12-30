@@ -1,26 +1,28 @@
 import { pipeline } from 'stream/promises';
 import { createWriteStream } from 'fs';
+import { basename } from 'path';
 
-export const downloadExternalImageAndSaveToDisk = async (url: string, filePath: string): Promise<string | Error> => {
+export const downloadExternalImageAndSaveToDisk = async (url: string, filePath: string): Promise<string> => {
   // TODO: add a timeout abortSignal
-  let response = await fetch(url);
+  let response = await fetch(url).catch((err) => {
+    throw new Error(`${err.message} | ${basename(filePath)}`);
+  });
+
   if (!response.ok || !response.body) {
     throw new Error('Failed to fetch Image ' + url);
   }
 
   try {
-    // extract filename (image)
     let writer = createWriteStream(filePath);
     await pipeline(response.body as any, writer);
     return filePath;
   } catch (error) {
-    let message = 'Error while saving image ' + url;
+    let message = 'Error while saving image';
 
     if (error instanceof Error) {
       message = error.message;
     }
-    console.log(error);
 
-    throw new Error(message);
+    throw new Error(`${message} | ${url} | ${basename(filePath)}`);
   }
 };
