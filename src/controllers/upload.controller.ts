@@ -43,7 +43,7 @@ export class ProductBatchUploadController {
     for await (const row of csvStream) {
       rowsBatch.push(row);
       ++count;
-      if (rowsBatch.length == 10) {
+      if (rowsBatch.length == 5) {
         // update progress
         uploadResult.message = `${count} rows in progress`;
         res.write(JSON.stringify(uploadResult));
@@ -51,8 +51,9 @@ export class ProductBatchUploadController {
         const { success: imgSuccess, errors: imgErrors } = await batchDownloadImages(rowsBatch);
 
         uploadResult.errors = uploadResult.errors.concat(imgErrors);
-        const { success: insertSuccess, errors: insertErros } = await batchInsertProducts(imgSuccess);
-        uploadResult.errors = uploadResult.errors.concat(insertErros);
+        const { success: insertSuccess, errors: insertErrors } = await batchInsertProducts(imgSuccess);
+
+        uploadResult.errors = uploadResult.errors.concat(insertErrors);
         rowsBatch = [];
       }
     }

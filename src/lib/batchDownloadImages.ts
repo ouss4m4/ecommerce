@@ -23,7 +23,15 @@ export const batchDownloadImages = async (rows: any[]): Promise<IBatchDownloadIm
     if (promiseResult.status == 'rejected') {
       response.errors.push(promiseResult.reason.message);
     } else {
-      response.success.push({ ...rows[index], image: `/images/${rows[index]['sku']}.png` });
+      let item: IBatchDownloadImagesSuccess = {
+        sku: rows[index]['sku'],
+        description: rows[index]['description'],
+        categoryId: rows[index]['categoryId'],
+        name: rows[index]['name'],
+        price: rows[index]['price'],
+        image: `/images/${rows[index]['sku']}.png`,
+      };
+      response.success.push(item);
     }
   });
 
