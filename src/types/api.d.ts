@@ -32,6 +32,6 @@ export type IBatchDownloadImagesResponse = {
 };
 
 export type IBatchProductInsertResponse = {
-  success: any;
+  success: number;
   errors: string[];
 };
