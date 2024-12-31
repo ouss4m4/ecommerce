@@ -7,6 +7,7 @@ import { batchInsertProducts } from '../lib/batchInsertProducts';
 export class ProductBatchUploadController {
   //   static async handle(req: Request, res: Response): Promise<Response<IUploadResponse>> {
   static async handle(req: Request, res: Response): Promise<any> {
+    const batchSize = 10;
     if (!req.file) {
       return res.json({
         success: false,
@@ -37,26 +38,33 @@ export class ProductBatchUploadController {
     res.write(JSON.stringify(uploadResult));
 
     // process rows in batches of 10
-    let rowsBatch = [];
+    let rowsBatch: any[] = [];
     let count = 0;
+
+    const processBatch = async () => {
+      // update progress
+      uploadResult.message = `${count} rows in progress`;
+      res.write(JSON.stringify(uploadResult));
+
+      const { success: imgSuccess, errors: imgErrors } = await batchDownloadImages(rowsBatch);
+
+      uploadResult.errors = uploadResult.errors.concat(imgErrors);
+      const { success: rowsInserted, errors: insertErrors } = await batchInsertProducts(imgSuccess);
+      console.log({ rowsInserted, insertErrors });
+      count += rowsInserted;
+      uploadResult.errors = uploadResult.errors.concat(insertErrors);
+    };
 
     for await (const row of csvStream) {
       rowsBatch.push(row);
-      ++count;
-      if (rowsBatch.length == 5) {
-        // update progress
-        uploadResult.message = `${count} rows in progress`;
-        res.write(JSON.stringify(uploadResult));
-
-        const { success: imgSuccess, errors: imgErrors } = await batchDownloadImages(rowsBatch);
-
-        uploadResult.errors = uploadResult.errors.concat(imgErrors);
-        const { success: insertSuccess, errors: insertErrors } = await batchInsertProducts(imgSuccess);
-
-        uploadResult.errors = uploadResult.errors.concat(insertErrors);
+      if (rowsBatch.length == batchSize) {
+        await processBatch();
         rowsBatch = [];
       }
     }
-    res.end(JSON.stringify({ ...uploadResult, message: `Processed ${count - uploadResult.errors.length} successfully` }));
+    if (rowsBatch.length) {
+      await processBatch();
+    }
+    res.end(JSON.stringify({ ...uploadResult, message: `Processed ${count} successfully` }));
   }
 }
