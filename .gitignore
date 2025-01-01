@@ -6,3 +6,4 @@ uploads
 coverage
 images
 logs
+src/**/*.csv
