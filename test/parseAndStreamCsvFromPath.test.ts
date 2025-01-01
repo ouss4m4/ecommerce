@@ -33,17 +33,4 @@ describe('parseAndStreamCsvFromPath', () => {
       expect(row).toEqual({ category: 'phone', description: 'some phone', image: 'http://sample.com', name: 'iphone', price: '123' });
     }
   });
-
-  //   it('Should handle stream errors', async () => {
-  //     const mockFilepath = '/uploads/test.csv';
-  //     const mockStream = new Readable({
-  //       read() {
-  //         this.emit('error', new Error('Stream error'));
-  //       },
-  //     });
-
-  //     (createReadStream as jest.Mock).mockReturnValue(mockStream);
-
-  //     expect(parseAndStreamCsvFromPath(mockFilepath)).toHaveBeenCalled();
-  //   });
 });
