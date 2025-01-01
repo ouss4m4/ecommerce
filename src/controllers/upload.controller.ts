@@ -8,7 +8,7 @@ import { productUploadedProducer } from '../kafka';
 export class ProductBatchUploadController {
   //   static async handle(req: Request, res: Response): Promise<Response<IUploadResponse>> {
   static async handle(req: Request, res: Response): Promise<any> {
-    const batchSize = 10;
+    const batchSize = 100;
     const skuStash = [];
     if (!req.file) {
       return res.json({
