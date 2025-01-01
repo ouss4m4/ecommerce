@@ -43,8 +43,8 @@ export class ProductUploadController {
 
     let count = 0;
     for await (const row of csvStream) {
-      const { sku, name, description, category, price, image: imageUrl } = row;
-      const task = fetchImageAndInsertInDbAsync(sku, name, description, category, price, imageUrl);
+      const { sku, name, description, categoryId, price, image: imageUrl } = row;
+      const task = fetchImageAndInsertInDbAsync(sku, name, description, categoryId, price, imageUrl);
       tasksInProgress.push(task);
       if (++count % 50 == 0) {
         res.write(

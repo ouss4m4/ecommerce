@@ -22,7 +22,7 @@ const handleFileUpload = async () => {
   document.getElementById('uploads').append(card);
 
   try {
-    let response = await fetch('http://localhost:3001/api/v1/upload', {
+    let response = await fetch('http://localhost:3001/api/v1/upload/batches', {
       method: 'POST',
       body: form,
     });
