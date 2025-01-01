@@ -5,6 +5,7 @@ import { config } from 'dotenv';
 import { v1Router } from './routes/v1.routes';
 import { join } from 'path';
 import cors from 'cors';
+import { logger } from './logger';
 
 config();
 
@@ -33,7 +34,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 
 const startServer = () => {
   app.listen(port, function () {
-    console.info('App is listening on port ', port);
+    logger.info(`App listening on ${port}`);
   });
 };
 export { app, startServer };
