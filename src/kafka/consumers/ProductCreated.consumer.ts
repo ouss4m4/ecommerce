@@ -7,6 +7,7 @@ class ProductCreatedConsumer {
   async connectAndSubscribe() {
     await this.consumer.connect();
     await this.consumer.subscribe({ topic: 'product.created', fromBeginning: true });
+    console.log('Consumer connected and listening to product.created');
 
     await this.consumer.run({
       eachMessage: async ({ topic, partition, message }) => {
