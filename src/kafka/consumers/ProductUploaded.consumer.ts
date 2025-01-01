@@ -1,3 +1,5 @@
+import { ingestProductsBatches } from '../../elastic/ingestProductsBatches';
+import { logger } from '../../logger';
 import { kafkaClient } from '../client';
 
 class ProductUploadedConsumer {
@@ -10,8 +12,15 @@ class ProductUploadedConsumer {
 
     await this.consumer.run({
       eachMessage: async ({ topic, partition, message }) => {
-        console.log('Product uploaded event received:', message.value?.toString());
-        // TODO: create the logic in different folder (separate from kafka context - reusable)
+        logger.log('kafka', `Product uploaded event received:  ${message.value?.toString()}`);
+        if (!message.value) return;
+        let skuStash: string[] = [];
+        try {
+          skuStash = JSON.parse(message.value.toString());
+          ingestProductsBatches(skuStash);
+        } catch (error) {
+          console.error(error);
+        }
       },
     });
   }

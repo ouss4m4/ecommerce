@@ -4,10 +4,12 @@ import { basename } from 'path';
 import { IUploadResponse } from '../types/api';
 import { batchDownloadImages } from '../lib/batchDownloadImages';
 import { batchInsertProducts } from '../lib/batchInsertProducts';
+import { productUploadedProducer } from '../kafka';
 export class ProductBatchUploadController {
   //   static async handle(req: Request, res: Response): Promise<Response<IUploadResponse>> {
   static async handle(req: Request, res: Response): Promise<any> {
     const batchSize = 10;
+    const skuStash = [];
     if (!req.file) {
       return res.json({
         success: false,
@@ -57,6 +59,7 @@ export class ProductBatchUploadController {
 
     for await (const row of csvStream) {
       rowsBatch.push(row);
+      skuStash.push(row['sku']);
       if (rowsBatch.length == batchSize) {
         await processBatch();
         rowsBatch = [];
@@ -65,6 +68,7 @@ export class ProductBatchUploadController {
     if (rowsBatch.length) {
       await processBatch();
     }
+    productUploadedProducer.sendMessage({ value: JSON.stringify(skuStash) });
     res.end(JSON.stringify({ ...uploadResult, message: `Processed ${count} successfully` }));
   }
 }
