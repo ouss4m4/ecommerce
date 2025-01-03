@@ -1,7 +1,6 @@
 import { IBatchDownloadImagesResponse, IBatchDownloadImagesSuccess } from '../types/api';
 import { join } from 'path';
 import { downloadExternalImageAndSaveToDisk } from './downloadExternalImageAndSaveToDisk';
-
 export const batchDownloadImages = async (rows: any[]): Promise<IBatchDownloadImagesResponse> => {
   let response: IBatchDownloadImagesResponse = {
     success: [],

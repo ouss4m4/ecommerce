@@ -28,7 +28,7 @@ const customLevels = {
 var infoTransport: DailyRotateFile = new DailyRotateFile({
   level: 'info',
   filename: 'ALL-%DATE%.log',
-  datePattern: 'YYYY-MM-DD-HH',
+  datePattern: 'YYYY-MM-DD',
   zippedArchive: true,
   maxSize: '20m',
   maxFiles: '14d',
@@ -38,7 +38,7 @@ var infoTransport: DailyRotateFile = new DailyRotateFile({
 var errorTransport = new DailyRotateFile({
   level: 'error',
   filename: 'ERROR-%DATE%.log',
-  datePattern: 'YYYY-MM-DD-HH',
+  datePattern: 'YYYY-MM-DD',
   zippedArchive: true,
   maxSize: '20m',
   maxFiles: '14d',
@@ -48,7 +48,7 @@ var errorTransport = new DailyRotateFile({
 var kafkaTransport = new DailyRotateFile({
   level: 'kafka',
   filename: 'KAFKA-%DATE%.log',
-  datePattern: 'YYYY-MM-DD-HH',
+  datePattern: 'YYYY-MM-DD',
   zippedArchive: true,
   maxSize: '20m',
   maxFiles: '14d',

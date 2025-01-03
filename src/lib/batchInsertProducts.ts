@@ -1,4 +1,3 @@
-import { Request, Response } from 'express';
 import { IBatchProductInsertResponse, IProductDTO } from '../types/api';
 import { AppDataSource } from '../db';
 import { Product } from '../entities/product.entity';
