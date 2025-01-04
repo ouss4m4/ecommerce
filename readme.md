@@ -1,38 +1,71 @@
-# ElesticSearch + PG TypeScript TypeOrm 
+# E-Commerce Products Page with Elasticsearch
 
-API to insert products through CSV Upload, sample:
+This repository implements an e-commerce platform with a focus on efficient data ingestion and search functionality.
 
-```csv
-sku,name,description,category,price,image
-IT000001,iPhone,the black brick phone,phones,123,https://placecats.com/neo_banana/300/200
+Key highlights include:
+
+- **Elasticsearch**: Powers the search functionality.
+- **Kibana**: on top of elasticsearch
+- **Postgres**: db to store products/categories
+- **Kafka**: Enables event-driven product ingestion.
+- **Redis**: Optimizes image handling.
+- **Concurent Processing**: Efficiently processes product data from CSV uploads.
+
+## CSV Product Upload Processing Flow
+
+1. Upload product data using /upload.html
+2. once the file is uploaded, rows are streamed using a read stream and parse with `fast-csv`
+
+```typescript
+export const parseAndStreamCsvFromPath = (filePath: string) => {
+  return createReadStream(filePath).pipe(parse({ headers: true, delimiter: ',', quote: "'" }));
+};
 ```
 
-## API
+3. read the csv stream and batch rows, once we reach batchSize, we start processing the first batch
 
-Post csv to /upload with key `items` in formData
+```typescript
+for await (const row of csvStream) {
+  rowsBatch.push(row);
+  skuStash.push(row['sku']);
+  if (rowsBatch.length == batchSize) {
+    await processBatch();
+    rowsBatch = [];
+  }
+}
+```
 
-* save the csv to disk with Multer. ✔️
-* read the saved file from disk in a stream ✔️
-* for every row, push a TASK to: ✔️
-  * fetch the Image url (and handle errors)
-  * save the product in the DB (handle errors)
-* API should respond with progress status (stream) ✔️
+4. to process a batch, we concurrently download images and wait for all settled.
 
-Once upload is done, we trigger a JOB (BullMQ)
+5. we insert all products with successfull image download in the db
 
-* ingest new data to ElasticSearch
-* update cached routes (POSTPONED)
+6. if a mass insert fails, we default on oneByOne
 
-TODO: Dont fetch duplicate images
+```typescript
+export const batchInsertProducts = async (products: IProductDTO[]): Promise<IBatchProductInsertResponse> => {
+  const response: IBatchProductInsertResponse = {
+    success: 0,
+    errors: [],
+  };
+  try {
+    // await productRepo.insert(products);
+    await productRepo.upsert(products, {
+      conflictPaths: ['sku'],
+    });
+    response.success = products.length;
+    return response;
+  } catch (error) {
+    return await insertOneByOne(products);
+  }
+};
+```
 
-when processing the csv and fetching images, we should check if the imageUrl was downloaded previously, we make a copy of the existing image instead of downloading a new one
+Key Considerations
 
-## UI
-
-add /products page (catalogue)
-add search filters 
-add /products/id
-
-Use ElasticSearch to implement filters and searchBar
-
-
+- Image Caching:
+  - Images are cached locally to minimize redundant downloads. Cached images are reused if the same URL appears within 2 minutes.
+- Error Handling:
+  - Failed image downloads are retried individually to isolate failures.
+- Scalability:
+  - Kafka ensures asynchronous and decoupled processing.
+  - Elasticsearch provides scalable search capabilities for large datasets.
