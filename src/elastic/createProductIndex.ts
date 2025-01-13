@@ -9,7 +9,7 @@ const createIndex = async () => {
     body: {
       mappings: {
         properties: {
-          name: { type: 'text', analyzer: 'english' }, // Use 'english' analyzer
+          name: { type: 'text', analyzer: 'english' },
           description: { type: 'text', analyzer: 'english' },
           category: { type: 'text', analyzer: 'english', fields: { raw: { type: 'keyword' } } },
         },
