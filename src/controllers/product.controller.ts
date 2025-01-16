@@ -97,7 +97,7 @@ export class ProductController {
           query: {
             multi_match: {
               query: searchTerm,
-              fields: ['name^3', 'category^2', 'description'],
+              fields: ['name^5', 'brand^3', 'category^2', 'description'],
               type: 'phrase',
             },
           },
