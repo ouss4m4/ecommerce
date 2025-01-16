@@ -1,7 +1,8 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Category } from './category.entity';
 
-@Entity()
+@Index(['name', 'categoryId'])
+@Entity({ name: 'product' })
 export class Product {
   @PrimaryGeneratedColumn()
   id: number;
@@ -9,27 +10,39 @@ export class Product {
   @Column({ unique: true })
   sku: string;
 
-  @Column()
+  @Column({ length: 255 })
   name: string;
 
-  @Column()
+  @Column({ type: 'text' })
   description: string;
 
   @Column({ type: 'tinyint' })
   categoryId: number;
 
-  @ManyToOne(() => Category, (category) => category.id)
+  @ManyToOne(() => Category, (category) => category.Products)
   Category: Category;
 
   @Column({ name: 'price', type: 'numeric' })
   price: number;
 
-  @Column({ name: 'image' })
+  @Column()
   image: string;
 
-  @CreateDateColumn()
+  @Column({ name: 'in_stock', type: 'boolean', default: true })
+  inStock: boolean;
+
+  @Column({ type: 'float', default: 0 })
+  ratings: number;
+
+  @Column({ type: 'int', default: 0 })
+  reviews: number;
+
+  @Column({ length: '100', nullable: true })
+  brand: string;
+
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }
