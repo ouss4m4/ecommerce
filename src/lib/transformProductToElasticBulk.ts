@@ -1,4 +1,5 @@
 import { Product } from '../entities/product.entity';
+import { IProductDTO } from '../types/api';
 
 /**
  * map a list of products to elastic search index bulk format
@@ -10,7 +11,7 @@ import { Product } from '../entities/product.entity';
  * @returns Elastic Bulk Insert Format
  */
 const transformToBulk = (products: Product[]): any[] => {
-  const bulkData = [];
+  const bulkData: ({ index: { _index: string; _id: string } } | IProductDTO)[] = [];
 
   for (const product of products) {
     // Metadata for the index operation
@@ -25,6 +26,10 @@ const transformToBulk = (products: Product[]): any[] => {
       category: product.Category.name,
       price: product.price,
       image: product.image,
+      brand: product.brand,
+      inStock: product.inStock,
+      ratings: product.ratings,
+      reviews: product.reviews,
     });
   }
 

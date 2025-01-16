@@ -14,6 +14,15 @@ const categories = [
   6, // accessories
 ];
 
+const brands: { [key: number]: string[] } = {
+  1: ['Apple', 'Samsung', 'Huawei', 'Mi', 'Nokia'],
+  2: ['LG', 'Samsung', 'Sony', 'BENQ', 'Acer'],
+  3: ['DELL', 'HP', 'SONY', 'APPLE', 'Lenovo'],
+  4: ['Windows', 'Sony', 'Samsung', 'APPLE', 'Amazon'],
+  5: ['Alienware', 'Asus ROG', 'MSI', 'CyberPowerPC', 'HP Omen'],
+  6: ['Logitech', 'Razer', 'Corsair', 'SteelSeries', 'HyperX'],
+};
+
 const productImagesByCategory: { [key: number]: string[] } = {
   1: [
     'https://amsprod.blob.core.windows.net/assets/a5b9b89c-ba44-4afb-9035-eaee28767699_400_400.png',
@@ -214,19 +223,23 @@ const generateCsv = async (rowsNum: number) => {
       console.log('stream opened');
 
       // Write the header
-      writeStream.write('sku,name,description,categoryId,price,image\n');
+      writeStream.write('sku,name,description,categoryId,price,image,inStock,ratings,reviews,brand\n');
 
       for (let i = 0; i < rowsNum; i++) {
         let category = Math.floor(Math.random() * 6) + 1;
 
-        // sku,name,description,category,price,image
+        // sku,name,description,categoryId,price,image,inStock,ratings,reviews,brand
         let row = [
-          `'${formatSku(++startingSku)}'`,
-          `'${itemName[category][Math.floor(Math.random() * itemName[category].length)]}'`,
-          `'${descriptions[category][Math.floor(Math.random() * descriptions[category].length)]}'`,
-          category,
-          pricesByCategory[category][Math.floor(Math.random() * pricesByCategory[category].length)],
-          `'${productImagesByCategory[category][Math.floor(Math.random() * productImagesByCategory[category].length)]}'`,
+          /*sku */ `${formatSku(++startingSku)}`,
+          /*name */ `'${itemName[category][Math.floor(Math.random() * itemName[category].length)]}'`,
+          /*description */ `'${descriptions[category][Math.floor(Math.random() * descriptions[category].length)]}'`,
+          /*categoryId */ category,
+          /*price */ pricesByCategory[category][Math.floor(Math.random() * pricesByCategory[category].length)],
+          /*image */ `'${productImagesByCategory[category][Math.floor(Math.random() * productImagesByCategory[category].length)]}'`,
+          /*inStock */ (Math.random() * 10) % 2 == 0 ? true : false,
+          /*ratings */ (Math.random() * 5).toFixed(1),
+          /*reviews */ Math.floor(Math.random() * 999),
+          /*brand */ `${brands[category][Math.floor(Math.random() * brands[category].length)]}`,
         ];
         // Write the row to the CSV
         writeStream.write(row.join(',') + '\n');

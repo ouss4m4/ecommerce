@@ -17,7 +17,7 @@ export const ingestProductsList = async () => {
     });
 
     if (products.length == 0) {
-      console.error('no products found');
+      console.error('no more products, batches done ' + batch);
       break;
     }
     ++batch;
