@@ -1,3 +1,5 @@
+const sortByOptions = ['ratings', 'reviews', 'price'];
+
 const fetchCategories = async () => {
   const apiUrl = `http://localhost:3001/api/v1/categories`;
   let result = await fetch(apiUrl).then((res) => res.json());
@@ -10,6 +12,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderCategories(categories);
   renderMinPriceInput();
   renderMaxPriceInput();
+  renderSortByOptions();
+  renderOrderOptions();
 });
 
 const renderMinPriceInput = () => {
@@ -107,4 +111,74 @@ const renderCategories = (list) => {
 
   categoriesWrap.append(selectTag);
   filtersDiv.appendChild(categoriesWrap);
+};
+
+const renderSortByOptions = () => {
+  const filtersDiv = document.getElementById('filters');
+  const sortingWrap = document.createElement('div');
+  const label = document.createElement('label');
+  label.className = `block text-sm font-semibold text-gray-500 mb-2`;
+  label.textContent = 'Sort By';
+  label.htmlFor = 'sortby';
+  sortingWrap.appendChild(label);
+  const selectTag = document.createElement('select');
+  selectTag.name = 'sortby';
+  selectTag.id = 'sortby';
+  selectTag.className = `rounded-sm border-gray-300  sm:text-sm w-[200px]`;
+
+  let selected = new URLSearchParams(window.location.search).get('sortby') ?? 'ratings';
+  for (const item of sortByOptions) {
+    const option = document.createElement('option');
+    option.text = item;
+    option.value = item;
+    option.selected = selected == item ? true : false;
+    selectTag.append(option);
+  }
+
+  selectTag.addEventListener('change', (ev) => {
+    const sortBy = ev.target.value ? ev.target.value : 'ratings';
+    const params = new URLSearchParams(window.location.search);
+    params.set('sortby', sortBy);
+    window.location.href = `${window.location.pathname}?${params.toString()}`;
+  });
+
+  sortingWrap.append(selectTag);
+  filtersDiv.append(sortingWrap);
+};
+
+const renderOrderOptions = () => {
+  const filtersDiv = document.getElementById('filters');
+  const orderingWrap = document.createElement('div');
+  const label = document.createElement('label');
+  label.className = `block text-sm font-semibold text-gray-500 mb-2`;
+  label.textContent = 'Order';
+  label.htmlFor = 'order';
+  orderingWrap.appendChild(label);
+  const selectTag = document.createElement('select');
+  selectTag.name = 'order';
+  selectTag.id = 'order';
+  selectTag.className = `rounded-sm border-gray-300  sm:text-sm w-[200px]`;
+
+  let selected = new URLSearchParams(window.location.search).get('order') ?? 'desc';
+
+  const desc = document.createElement('option');
+  desc.text = 'desc';
+  desc.value = 'desc';
+  desc.selected = selected == 'desc' ? true : false;
+  selectTag.append(desc);
+
+  const asc = document.createElement('option');
+  asc.text = 'asc';
+  asc.value = 'asc';
+  asc.selected = selected == 'asc' ? true : false;
+  selectTag.append(asc);
+
+  selectTag.addEventListener('change', (ev) => {
+    const params = new URLSearchParams(window.location.search);
+    params.set('order', ev.target.value);
+    window.location.href = `${window.location.pathname}?${params.toString()}`;
+  });
+
+  orderingWrap.append(selectTag);
+  filtersDiv.append(orderingWrap);
 };
