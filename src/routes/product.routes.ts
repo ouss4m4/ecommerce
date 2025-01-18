@@ -33,9 +33,8 @@ productRouter.get('/', async (req: Request, res: Response) => {
 });
 
 productRouter.get('/search', async (req: Request, res: Response) => {
-  let query = req.query.query;
-
-  let items = await ProductController.searchProduct(query as string);
+  let query = req.query;
+  let items = await ProductController.searchProduct(query);
   res.json(items);
   return;
 });

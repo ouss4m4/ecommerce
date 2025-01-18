@@ -17,7 +17,7 @@ const createIndex = async () => {
           inStock: { type: 'boolean' },
           ratings: { type: 'float' },
           reviews: { type: 'integer' },
-          brand: { type: 'text' },
+          brand: { type: 'text', fields: { raw: { type: 'keyword' } } },
         },
       },
     },

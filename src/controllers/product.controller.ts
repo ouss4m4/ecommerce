@@ -14,6 +14,14 @@ export interface CreateProductDTO {
   image: string;
 }
 
+export interface ISearchProductsDTO {
+  keyword?: string;
+  category?: string;
+  page?: number;
+  size?: number;
+  priceMin?: number;
+  priceMax?: number;
+}
 export class ProductController {
   static async getProductList({ limit, skip }: { limit: number; skip: number }): Promise<{ products: Product[]; total: number }> {
     const productRepo = AppDataSource.getRepository(Product);
@@ -75,37 +83,72 @@ export class ProductController {
 
     return updatedProduct;
   }
-  static async searchProduct(searchTerm: string) {
+
+  static async searchProduct({ category, keyword, priceMin, priceMax, page = 1, size = 10 }: ISearchProductsDTO) {
     try {
-      if (!searchTerm) {
-        // Fetch latest  items when searchTerm is empty
+      const filters: any[] = [];
+      const from = (page - 1) * size;
+
+      if (category) {
+        filters.push({ term: { 'category.raw': category } });
+      }
+
+      if (priceMin != undefined || priceMax != undefined) {
+        let priceRange: Record<string, any> = { range: { price: {} } };
+        if (priceMin && priceMin >= 0) {
+          priceRange.range.price['gte'] = priceMin;
+        }
+        if (priceMax && priceMax > 0) {
+          priceRange.range.price['lte'] = priceMax;
+        }
+        filters.push(priceRange);
+      }
+
+      // If no search term is provided, fetch top products by ratings
+      if (!keyword) {
         const defaultResult = await elasticClient.search({
           index: 'products',
           body: {
             query: {
-              match_all: {},
+              bool: {
+                filter: filters, // Apply filters (e.g., category) if any
+              },
             },
-            size: 100,
+            sort: [{ ratings: 'desc' }], // Sort by ratings in descending order
+            from,
+            size,
           },
         });
 
         return defaultResult.hits.hits.map((hit) => hit._source);
       }
+
+      // Perform a search with the provided search term
       const searchResult = await elasticClient.search({
         index: 'products',
         body: {
           query: {
-            multi_match: {
-              query: searchTerm,
-              fields: ['name^5', 'brand^3', 'category^2', 'description'],
-              type: 'phrase',
+            bool: {
+              must: [
+                {
+                  multi_match: {
+                    query: keyword,
+                    fields: ['name^5', 'brand^3', 'description'],
+                    type: 'phrase',
+                  },
+                },
+              ],
+              filter: filters,
             },
           },
+          from,
+          size,
         },
       });
 
       return searchResult.hits.hits.map((hit) => hit._source);
     } catch (error) {
+      console.error('Error searching products:', error);
       return [];
     }
   }

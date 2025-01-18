@@ -2,8 +2,8 @@
 const searchInput = document.getElementById('search');
 
 const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.get('query')) {
-  searchInput.value = urlParams.get('query');
+if (urlParams.get('keyword')) {
+  searchInput.value = urlParams.get('keyword');
 }
 let timeout;
 searchInput.addEventListener('input', (e) => {
@@ -11,9 +11,9 @@ searchInput.addEventListener('input', (e) => {
   timeout = setTimeout(function () {
     let params = new URLSearchParams(window.location.search);
     if (e.target.value) {
-      params.set('query', e.target.value);
+      params.set('keyword', e.target.value);
     } else {
-      params.delete('query');
+      params.delete('keyword');
     }
     window.location.href = `${window.location.pathname}?${params.toString()}`;
   }, 500);
