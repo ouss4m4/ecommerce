@@ -32,8 +32,8 @@ productRouter.get('/', async (req: Request, res: Response) => {
 
 productRouter.get('/search', async (req: Request, res: Response) => {
   let query = req.query;
-  console.log(query);
-  let items = await ProductController.searchProduct(query);
+  let inStock = query.inStock == 'true' ? true : false;
+  let items = await ProductController.searchProduct({ ...query, inStock });
   res.json(items);
   return;
 });

@@ -4,6 +4,7 @@ import { AppDataSource } from '../db';
 import { elasticClient } from '../elastic';
 import { productCreatedProducer, productUpdatedProducer } from '../kafka';
 import { UpdateProductDTO } from '../types/api';
+import { QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
 
 export interface CreateProductDTO {
   sku: string;
@@ -23,6 +24,7 @@ export interface ISearchProductsDTO {
   priceMax?: number;
   order?: string;
   sortby?: string;
+  inStock?: boolean;
 }
 export class ProductController {
   static async getProductList({ limit, skip }: { limit: number; skip: number }): Promise<{ products: Product[]; total: number }> {
@@ -95,18 +97,9 @@ export class ProductController {
     order = 'desc',
     page = 1,
     size = 10,
+    inStock,
   }: ISearchProductsDTO) {
     try {
-      console.log({
-        category,
-        keyword,
-        priceMin,
-        priceMax,
-        sortby,
-        order,
-        page,
-        size,
-      });
       const filters: any[] = [];
       const from = (page - 1) * size;
 
@@ -125,33 +118,14 @@ export class ProductController {
         filters.push(priceRange);
       }
 
-      const sort: Record<string, string> = {};
-      sort[sortby] = order;
-
-      // If no search term is provided, fetch top products by ratings
-      if (!keyword) {
-        const defaultResult = await elasticClient.search({
-          index: 'products',
-          body: {
-            query: {
-              bool: {
-                filter: filters, // Apply filters (e.g., category) if any
-              },
-            },
-            sort: [sort], // Sort by ratings in descending order
-            from,
-            size,
-          },
-        });
-
-        return defaultResult.hits.hits.map((hit) => hit._source);
+      if (inStock) {
+        filters.push({ term: { inStock: true } });
       }
 
-      // Perform a search with the provided search term
-      const searchResult = await elasticClient.search({
-        index: 'products',
-        body: {
-          query: {
+      const sort: Record<string, string> = {};
+      sort[sortby] = order;
+      const query: QueryDslQueryContainer = keyword
+        ? {
             bool: {
               must: [
                 {
@@ -164,13 +138,24 @@ export class ProductController {
               ],
               filter: filters,
             },
-          },
+          }
+        : {
+            bool: {
+              filter: filters, // Apply filters (e.g., category) if any
+            },
+          };
+
+      const Result = await elasticClient.search({
+        index: 'products',
+        body: {
+          query: query,
+          sort: [sort], // Sort by ratings in descending order
           from,
           size,
         },
       });
 
-      return searchResult.hits.hits.map((hit) => hit._source);
+      return Result.hits.hits.map((hit) => hit._source);
     } catch (error) {
       console.error('Error searching products:', error);
       return [];

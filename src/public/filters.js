@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderMaxPriceInput();
   renderSortByOptions();
   renderOrderOptions();
+  renderInStockToggle();
   renderResetButton();
 });
 
@@ -184,14 +185,37 @@ const renderOrderOptions = () => {
   filtersDiv.append(orderingWrap);
 };
 
-// TODO: Add inStock toggle
+const renderInStockToggle = () => {
+  const filtersDiv = document.getElementById('filters');
+  const stockWrap = document.createElement('div');
+  stockWrap.classList = 'flex items-center ml-4';
+  let btn = document.createElement('input');
+  btn.type = 'checkbox';
+  let checked = new URLSearchParams(window.location.search).get('inStock');
+  btn.checked = checked;
+  btn.addEventListener('change', function (e) {
+    const params = new URLSearchParams(window.location.search);
+    if (e.target.checked) {
+      params.set('inStock', true);
+    } else {
+      params.delete('inStock');
+    }
+    window.location.href = `${window.location.pathname}?${params.toString()}`;
+  });
+  stockWrap.append(btn);
+  const label = document.createElement('label');
+  label.textContent = 'In Stock Only';
+  stockWrap.append(label);
+  filtersDiv.append(stockWrap);
+};
+
 const renderResetButton = () => {
   const filtersDiv = document.getElementById('filters');
   const btnWrap = document.createElement('div');
   btnWrap.classList = 'flex items-center ml-4 ';
   const btn = document.createElement('button');
   btn.textContent = 'RESET';
-  btn.classList = 'text-center border border-gray-300 rounded text-center font-semibold uppercase p-4';
+  btn.classList = 'text-center text-sm border-gray-300 rounded text-center font-semibold uppercase p-4';
   btn.addEventListener('click', () => {
     window.location.href = `${window.location.pathname}`;
   });
