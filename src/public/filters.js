@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderMaxPriceInput();
   renderSortByOptions();
   renderOrderOptions();
+  renderResetButton();
 });
 
 const renderMinPriceInput = () => {
@@ -181,4 +182,19 @@ const renderOrderOptions = () => {
 
   orderingWrap.append(selectTag);
   filtersDiv.append(orderingWrap);
+};
+
+// TODO: Add inStock toggle
+const renderResetButton = () => {
+  const filtersDiv = document.getElementById('filters');
+  const btnWrap = document.createElement('div');
+  btnWrap.classList = 'flex items-center ml-4 ';
+  const btn = document.createElement('button');
+  btn.textContent = 'RESET';
+  btn.classList = 'text-center border border-gray-300 rounded text-center font-semibold uppercase p-4';
+  btn.addEventListener('click', () => {
+    window.location.href = `${window.location.pathname}`;
+  });
+  btnWrap.append(btn);
+  filtersDiv.append(btnWrap);
 };
