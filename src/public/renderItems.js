@@ -9,7 +9,13 @@ let timeout;
 searchInput.addEventListener('input', (e) => {
   clearTimeout(timeout); // debounce
   timeout = setTimeout(function () {
-    window.location.href = `http://localhost:3001/search.html?query=${e.target.value}`;
+    let params = new URLSearchParams(window.location.search);
+    if (e.target.value) {
+      params.set('query', e.target.value);
+    } else {
+      params.delete('query');
+    }
+    window.location.href = `${window.location.pathname}?${params.toString()}`;
   }, 500);
 });
 

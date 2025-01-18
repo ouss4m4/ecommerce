@@ -6,7 +6,7 @@ export class CategoryController {
   static async getCategories() {
     const categoryRepo = AppDataSource.getRepository(Category);
 
-    return await categoryRepo.find();
+    return await categoryRepo.find({ order: { id: 'ASC' } });
   }
 
   static async createCategory(unsafeData: any) {

@@ -1,7 +1,7 @@
 const getItemsList = async () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const query = urlParams.get('query');
-  const apiUrl = `http://localhost:3001/api/v1/products/search?query=${query}`;
+  const params = new URLSearchParams(window.location.search);
+
+  const apiUrl = `http://localhost:3001/api/v1/products/search?${params.toString()}`;
   let result = await fetch(apiUrl).then((res) => res.json());
   console.log(result);
   return result;
