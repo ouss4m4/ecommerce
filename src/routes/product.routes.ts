@@ -6,8 +6,6 @@ const productRouter = Router();
 // API ROUTES
 productRouter.get('/', async (req: Request, res: Response) => {
   try {
-    // extract query
-    console.log(req.query.page);
     const page = Number(req.query.page ?? 0);
     const pageSize = Number(req.query.pageSize ?? 12);
 
@@ -34,6 +32,7 @@ productRouter.get('/', async (req: Request, res: Response) => {
 
 productRouter.get('/search', async (req: Request, res: Response) => {
   let query = req.query;
+  console.log(query);
   let items = await ProductController.searchProduct(query);
   res.json(items);
   return;

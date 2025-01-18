@@ -21,6 +21,8 @@ export interface ISearchProductsDTO {
   size?: number;
   priceMin?: number;
   priceMax?: number;
+  order?: string;
+  sortby?: string;
 }
 export class ProductController {
   static async getProductList({ limit, skip }: { limit: number; skip: number }): Promise<{ products: Product[]; total: number }> {
@@ -84,8 +86,27 @@ export class ProductController {
     return updatedProduct;
   }
 
-  static async searchProduct({ category, keyword, priceMin, priceMax, page = 1, size = 10 }: ISearchProductsDTO) {
+  static async searchProduct({
+    category,
+    keyword,
+    priceMin,
+    priceMax,
+    sortby = 'ratings',
+    order = 'desc',
+    page = 1,
+    size = 10,
+  }: ISearchProductsDTO) {
     try {
+      console.log({
+        category,
+        keyword,
+        priceMin,
+        priceMax,
+        sortby,
+        order,
+        page,
+        size,
+      });
       const filters: any[] = [];
       const from = (page - 1) * size;
 
@@ -104,6 +125,9 @@ export class ProductController {
         filters.push(priceRange);
       }
 
+      const sort: Record<string, string> = {};
+      sort[sortby] = order;
+
       // If no search term is provided, fetch top products by ratings
       if (!keyword) {
         const defaultResult = await elasticClient.search({
@@ -114,7 +138,7 @@ export class ProductController {
                 filter: filters, // Apply filters (e.g., category) if any
               },
             },
-            sort: [{ ratings: 'desc' }], // Sort by ratings in descending order
+            sort: [sort], // Sort by ratings in descending order
             from,
             size,
           },
