@@ -616,6 +616,9 @@ video {
 .w-full {
   width: 100%;
 }
+.w-\[100px\] {
+  width: 100px;
+}
 .max-w-2xl {
   max-width: 42rem;
 }
@@ -740,6 +743,9 @@ video {
 }
 .p-8 {
   padding: 2rem;
+}
+.p-2 {
+  padding: 0.5rem;
 }
 .px-2 {
   padding-left: 0.5rem;

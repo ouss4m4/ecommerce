@@ -8,7 +8,67 @@ const fetchCategories = async () => {
 document.addEventListener('DOMContentLoaded', async () => {
   const categories = await fetchCategories();
   renderCategories(categories);
+  renderMinPriceInput();
+  renderMaxPriceInput();
 });
+
+const renderMinPriceInput = () => {
+  const filtersDiv = document.getElementById('filters');
+  const minPriceWrap = document.createElement('div');
+  const label = document.createElement('label');
+  label.className = `block text-sm font-semibold text-gray-500 mb-2`;
+  label.textContent = 'Min Price';
+  label.htmlFor = 'minprice';
+  minPriceWrap.append(label);
+  const minPriceInput = document.createElement('input');
+  minPriceInput.type = 'number';
+  minPriceInput.className = 'rounded-sm border  text-sm w-[100px]';
+  minPriceInput.name = 'minprice';
+  minPriceInput.id = 'minprice';
+  let minprice = new URLSearchParams(window.location.search).get('priceMin');
+  minprice ? (minPriceInput.value = minprice) : '';
+  minPriceInput.addEventListener('change', (e) => {
+    const priceMin = e.target.value ? e.target.value : '0';
+    const params = new URLSearchParams(window.location.search);
+    if (priceMin == '0') {
+      params.delete('priceMin');
+    } else {
+      params.set('priceMin', priceMin);
+    }
+    window.location.href = `${window.location.pathname}?${params.toString()}`;
+  });
+  minPriceWrap.append(minPriceInput);
+  filtersDiv.append(minPriceWrap);
+};
+
+const renderMaxPriceInput = () => {
+  const filtersDiv = document.getElementById('filters');
+  const maxPriceWrap = document.createElement('div');
+  const label = document.createElement('label');
+  label.className = `block text-sm font-semibold text-gray-500 mb-2`;
+  label.textContent = 'Max Price';
+  label.htmlFor = 'maxprice';
+  maxPriceWrap.append(label);
+  const maxPriceInput = document.createElement('input');
+  maxPriceInput.type = 'number';
+  maxPriceInput.className = 'rounded-sm border  text-sm w-[100px]';
+  maxPriceInput.name = 'maxprice';
+  maxPriceInput.id = 'maxprice';
+  let maxprice = new URLSearchParams(window.location.search).get('priceMax');
+  maxprice ? (maxPriceInput.value = maxprice) : '';
+  maxPriceInput.addEventListener('change', (e) => {
+    const priceMax = e.target.value ? e.target.value : '0';
+    const params = new URLSearchParams(window.location.search);
+    if (priceMax == '0') {
+      params.delete('priceMax');
+    } else {
+      params.set('priceMax', priceMax);
+    }
+    window.location.href = `${window.location.pathname}?${params.toString()}`;
+  });
+  maxPriceWrap.append(maxPriceInput);
+  filtersDiv.append(maxPriceWrap);
+};
 
 const renderCategories = (list) => {
   const filtersDiv = document.getElementById('filters');
