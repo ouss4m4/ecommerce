@@ -15,7 +15,8 @@ searchInput.addEventListener('input', (e) => {
     } else {
       params.delete('keyword');
     }
-    window.location.href = `${window.location.pathname}?${params.toString()}`;
+    let base = window.location.pathname == 'search' ? '' : '/search';
+    window.location.href = `${base}?${params.toString()}`;
   }, 500);
 });
 
@@ -35,10 +36,62 @@ const createItemCard = (item) => {
   return itemDiv;
 };
 
-async function renderItems(itemsList) {
+async function renderItems(data) {
+  const { data: itemsList, aggs } = data;
   const itemsWrap = document.getElementById('products');
   for (let i = 0; i < itemsList.length; i++) {
     let card = createItemCard(itemsList[i]);
     itemsWrap.append(card);
   }
+
+  renderAggs(aggs);
 }
+
+const renderAggs = (items) => {
+  // {key:"Samsung", doc_count:51,}
+  const brands = items.brand_counts.buckets;
+  const aggsDiv = document.getElementById('aggs');
+  const wrapDiv = document.createElement('div');
+  wrapDiv.className = 'shadow bg-white flex flex-col space-y-2 p-2';
+  const title = document.createElement('h2');
+  title.textContent = 'BRANDS';
+  title.className = 'text-sm';
+  wrapDiv.append(title);
+  const preSelectedBrands = getPreselectedBrands();
+  for (const brand of brands) {
+    const brandWrap = document.createElement('div');
+    brandWrap.className = 'flex items-center space-x-2';
+    const brandCheck = document.createElement('input');
+    brandCheck.type = 'checkbox';
+    brandCheck.name = `${brand.key}`;
+    brandCheck.id = `${brand.key}`;
+    brandCheck.checked = preSelectedBrands.includes(`${brand.key}`);
+    brandCheck.addEventListener('change', function (e) {
+      const params = new URLSearchParams(window.location.search);
+      let newValue;
+      if (e.target.checked) {
+        newValue = [...getPreselectedBrands(), `${brand.key}`];
+      } else {
+        newValue = getPreselectedBrands().filter((name) => name != `${brand.key}`);
+      }
+      params.set('brand', newValue);
+
+      window.location.href = `${window.location.pathname}?${params.toString()}`;
+    });
+    brandWrap.append(brandCheck);
+    const brandLabel = document.createElement('label');
+    brandLabel.innerText = `${brand.key} - (${brand.doc_count})`;
+    brandLabel.htmlFor = `${brand.key}`;
+    brandWrap.append(brandLabel);
+    wrapDiv.append(brandWrap);
+  }
+
+  aggsDiv.append(wrapDiv);
+};
+
+const getPreselectedBrands = () => {
+  let urlBrands = new URLSearchParams(window.location.search).get(`brand`); // 'LG,Sony,...'
+  if (!urlBrands) return [];
+  result = urlBrands.split(',');
+  return result;
+};

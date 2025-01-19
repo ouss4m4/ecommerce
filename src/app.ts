@@ -17,7 +17,7 @@ app.use(json());
 // API V1 routes
 app.use('/api/v1', v1Router);
 
-app.use(express.static(join(__dirname, 'public')));
+app.use(express.static(join(__dirname, 'public'), { extensions: ['html'] }));
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   if (err) {

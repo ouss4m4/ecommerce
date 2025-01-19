@@ -150,12 +150,26 @@ export class ProductController {
         body: {
           query: query,
           sort: [sort], // Sort by ratings in descending order
+          aggs: {
+            brand_counts: {
+              terms: {
+                field: 'brand.raw',
+                size: 10,
+              },
+            },
+            price_ranges: {
+              range: {
+                field: 'price',
+                ranges: [{ to: 100 }, { from: 100, to: 500 }, { from: 500, to: 1000 }, { from: 1000 }],
+              },
+            },
+          },
           from,
           size,
         },
       });
-
-      return Result.hits.hits.map((hit) => hit._source);
+      return { data: Result.hits.hits.map((hit) => hit._source), aggs: Result.aggregations };
+      return;
     } catch (error) {
       console.error('Error searching products:', error);
       return [];
