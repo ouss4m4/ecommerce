@@ -26,6 +26,7 @@ export interface ISearchProductsDTO {
   sortby?: string;
   inStock?: boolean;
   brand?: string;
+  prices?: string;
 }
 export class ProductController {
   static async getProductList({ limit, skip }: { limit: number; skip: number }): Promise<{ products: Product[]; total: number }> {
@@ -100,6 +101,7 @@ export class ProductController {
     size = 100,
     inStock,
     brand,
+    prices,
   }: ISearchProductsDTO) {
     try {
       const filters: any[] = [];
@@ -124,16 +126,43 @@ export class ProductController {
         filters.push({ term: { inStock: true } });
       }
 
-      let brandFilters: any[] = [];
-      if (brand) {
-        let brands = brand.split(',').map((name) => ({ term: { 'brand.raw': name } }));
+      let postFilters: any[] = [];
 
-        brandFilters.push({
+      // Add brand filters
+      if (brand) {
+        const brands = brand.split(',').map((name) => ({ term: { 'brand.raw': name } }));
+        postFilters.push({
           bool: {
             should: brands,
           },
         });
       }
+
+      // Add price filters
+      if (prices) {
+        const pricesArray = prices.split(',').map((price) => parseFloat(price));
+        const pricesList = pricesArray.map((from, index) => {
+          if (index < pricesArray.length - 1) {
+            return { range: { price: { gte: from, lte: pricesArray[index + 1] - 1 } } };
+          } else {
+            return { range: { price: { gte: from } } };
+          }
+        });
+        postFilters.push({
+          bool: {
+            should: pricesList,
+          },
+        });
+      }
+
+      // Combine into a single post_filter
+      const postFilter = {
+        bool: {
+          filter: postFilters,
+        },
+      };
+      console.log(JSON.stringify(postFilters));
+
       const sort: Record<string, string> = {};
       sort[sortby] = order;
       const query: QueryDslQueryContainer = keyword
@@ -159,7 +188,7 @@ export class ProductController {
           query: query,
           post_filter: {
             bool: {
-              filter: brandFilters, // Reapply filters here to limit the final result set
+              filter: postFilter, // Reapply filters here to limit the final result set
             },
           },
           sort: [sort], // Sort by ratings in descending order
@@ -173,7 +202,7 @@ export class ProductController {
             price_ranges: {
               range: {
                 field: 'price',
-                ranges: [{ to: 500 }, { from: 500, to: 1000 }, { from: 1000, to: 1500 }, { from: 1500 }],
+                ranges: [{ from: 0, to: 500 }, { from: 500, to: 1000 }, { from: 1000, to: 1500 }, { from: 1500 }],
               },
             },
           },

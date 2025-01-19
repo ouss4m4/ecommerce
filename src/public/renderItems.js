@@ -93,13 +93,53 @@ const renderBrands = (brands) => {
 };
 
 const renderPriceRanges = (prices) => {
+  const aggsDiv = document.getElementById('aggs');
+  const wrapDiv = document.createElement('div');
+  wrapDiv.className = 'shadow bg-white flex flex-col space-y-2 p-2';
+  const title = document.createElement('h2');
+  title.textContent = 'PRICE';
+  title.className = 'text-sm mt-4';
+  wrapDiv.append(title);
+  const preSelectedPrices = getPreSelectedPrices();
   for (const range of prices) {
-    console.log(range);
+    const priceWrap = document.createElement('div');
+    priceWrap.className = 'flex items-center space-x-2';
+    const priceCheck = document.createElement('input');
+    priceCheck.type = 'checkbox';
+    priceCheck.name = `${range.from}`;
+    priceCheck.id = `${range.from}`;
+    priceCheck.checked = preSelectedPrices.includes(`${range.from}`);
+    priceCheck.addEventListener('change', function (e) {
+      const params = new URLSearchParams(window.location.search);
+      let newValue;
+      if (e.target.checked) {
+        newValue = [...getPreSelectedPrices(), `${range.from}`];
+      } else {
+        newValue = getPreSelectedPrices().filter((price) => price != `${range.from}`);
+      }
+      params.set('prices', newValue);
+
+      window.location.href = `${window.location.pathname}?${params.toString()}`;
+    });
+    priceWrap.append(priceCheck);
+    const priceLabel = document.createElement('label');
+    priceLabel.innerText = `${range.from}${range.to ? ' - ' + range.to : '+'}`;
+    priceLabel.htmlFor = `${range.from}`;
+    priceWrap.append(priceLabel);
+    wrapDiv.append(priceWrap);
   }
+
+  aggsDiv.append(wrapDiv);
 };
+
 const getPreselectedBrands = () => {
   let urlBrands = new URLSearchParams(window.location.search).get(`brand`); // 'LG,Sony,...'
   if (!urlBrands) return [];
-  result = urlBrands.split(',');
-  return result;
+  return urlBrands.split(',');
+};
+
+const getPreSelectedPrices = () => {
+  let urlPrices = new URLSearchParams(window.location.search).get(`prices`); // '0,500,1000...'
+  if (!urlPrices) return [];
+  return urlPrices.split(',');
 };
