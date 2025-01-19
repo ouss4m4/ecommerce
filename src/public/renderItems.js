@@ -48,8 +48,11 @@ async function renderItems(data) {
 }
 
 const renderAggs = (items) => {
-  // {key:"Samsung", doc_count:51,}
-  const brands = items.brand_counts.buckets;
+  renderBrands(items.brand_counts.buckets);
+  renderPriceRanges(items.price_ranges.buckets);
+};
+
+const renderBrands = (brands) => {
   const aggsDiv = document.getElementById('aggs');
   const wrapDiv = document.createElement('div');
   wrapDiv.className = 'shadow bg-white flex flex-col space-y-2 p-2';
@@ -89,6 +92,11 @@ const renderAggs = (items) => {
   aggsDiv.append(wrapDiv);
 };
 
+const renderPriceRanges = (prices) => {
+  for (const range of prices) {
+    console.log(range);
+  }
+};
 const getPreselectedBrands = () => {
   let urlBrands = new URLSearchParams(window.location.search).get(`brand`); // 'LG,Sony,...'
   if (!urlBrands) return [];
