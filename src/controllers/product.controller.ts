@@ -25,6 +25,7 @@ export interface ISearchProductsDTO {
   order?: string;
   sortby?: string;
   inStock?: boolean;
+  brand?: string;
 }
 export class ProductController {
   static async getProductList({ limit, skip }: { limit: number; skip: number }): Promise<{ products: Product[]; total: number }> {
@@ -96,8 +97,9 @@ export class ProductController {
     sortby = 'ratings',
     order = 'desc',
     page = 1,
-    size = 10,
+    size = 100,
     inStock,
+    brand,
   }: ISearchProductsDTO) {
     try {
       const filters: any[] = [];
@@ -122,6 +124,16 @@ export class ProductController {
         filters.push({ term: { inStock: true } });
       }
 
+      let brandFilters: any[] = [];
+      if (brand) {
+        let brands = brand.split(',').map((name) => ({ term: { 'brand.raw': name } }));
+
+        brandFilters.push({
+          bool: {
+            should: brands,
+          },
+        });
+      }
       const sort: Record<string, string> = {};
       sort[sortby] = order;
       const query: QueryDslQueryContainer = keyword
@@ -139,16 +151,17 @@ export class ProductController {
               filter: filters,
             },
           }
-        : {
-            bool: {
-              filter: filters, // Apply filters (e.g., category) if any
-            },
-          };
+        : { bool: { filter: filters } };
 
       const Result = await elasticClient.search({
         index: 'products',
         body: {
           query: query,
+          post_filter: {
+            bool: {
+              filter: brandFilters, // Reapply filters here to limit the final result set
+            },
+          },
           sort: [sort], // Sort by ratings in descending order
           aggs: {
             brand_counts: {
@@ -169,7 +182,6 @@ export class ProductController {
         },
       });
       return { data: Result.hits.hits.map((hit) => hit._source), aggs: Result.aggregations };
-      return;
     } catch (error) {
       console.error('Error searching products:', error);
       return [];
