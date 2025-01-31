@@ -7,3 +7,4 @@ coverage
 images
 logs
 src/**/*.csv
+.DS_Store
