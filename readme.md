@@ -1,5 +1,7 @@
 # E-Commerce Products Page with Elasticsearch
 
+![Page Screenshot](./ecommerce.png)
+
 This repository implements an e-commerce platform with a focus on efficient data ingestion and search functionality.
 
 Key highlights include:
