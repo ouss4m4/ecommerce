@@ -1,5 +1,8 @@
 # E-Commerce Products Page with Elasticsearch
 
+* Backend: Build a service to upload products list through a csv file. persist the data. and then ingest it to ElasticSearch
+* Frontend: Build a search page with elastic style filtering. (pre-search, post-search)
+
 ![Page Screenshot](./ecommerce.png)
 
 This repository implements an e-commerce platform with a focus on efficient data ingestion and search functionality.
@@ -12,6 +15,8 @@ Key highlights include:
 - **Kafka**: Enables event-driven product ingestion.
 - **Redis**: Optimizes image handling.
 - **Concurent Processing**: Efficiently processes product data from CSV uploads.
+- **API** build with expressJs (typescript)
+- **FrontEnd** served as static folder from express. vanilla Js + tailwind
 
 ## CSV Product Upload Processing Flow
 
